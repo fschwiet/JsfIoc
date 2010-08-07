@@ -13,7 +13,7 @@ describe("JsfIoc", function () {
 
         sut.Register({
             name: "_foo",
-            class: Foo
+            service: Foo
         });
 
         var result = sut.Load("_foo");
@@ -27,12 +27,12 @@ describe("JsfIoc", function () {
 
         sut.Register({
             name: "_bar",
-            class: Bar
+            service: Bar
         });
 
         sut.Register({
             name: "_foo",
-            class: Foo,
+            service: Foo,
             requires: ["_bar"]
         });
 
@@ -49,7 +49,7 @@ describe("JsfIoc", function () {
 
         sut.Register({
             name: "_foo",
-            class: Foo,
+            service: Foo,
             parameters: ["_fooLevel"]
         });
 
@@ -66,7 +66,7 @@ describe("JsfIoc", function () {
 
         sut.Register({
             name: "_foo",
-            class: Foo,
+            service: Foo,
             singleton: true
         });
 
@@ -105,11 +105,11 @@ describe("JsfIoc", function () {
             }).toThrow("Register must be called with string parameter 'name'");
         });
 
-        it("Parameter 'class' should be a function", function () {
+        it("Parameter 'service' should be a function", function () {
 
             expect(function () {
                 sut.Register({ name: "xyz321" });
-            }).toThrow("Register must be called with function parameter 'class'");
+            }).toThrow("Register must be called with function parameter 'service'");
         });
     });
 

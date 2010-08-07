@@ -35,8 +35,8 @@ JsfIoc.prototype = {
     Register: function (parameters) {
         if (typeof parameters.name != "string") {
             throw "Register must be called with string parameter 'name'";
-        } else if (typeof parameters.class != "function") {
-            throw "Register must be called with function parameter 'class'";
+        } else if (typeof parameters.service != "function") {
+            throw "Register must be called with function parameter 'service'";
         };
 
         this._bindings[parameters.name] = parameters;
@@ -54,7 +54,7 @@ JsfIoc.prototype = {
 
         var binding = this._bindings[name];
 
-        result = new binding.class;
+        result = new binding.service;
 
         if (binding.requires instanceof Array) for (var i = 0; i < binding.requires.length; i++) {
             var dependency = binding.requires[i];
