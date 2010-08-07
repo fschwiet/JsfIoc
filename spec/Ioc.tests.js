@@ -41,9 +41,9 @@ describe("JsfIoc", function () {
         expect(result._bar instanceof Bar).toBeTruthy();
     });
 
-    it("Register and load a service with an initialization value", function () {
+    it("Register and load a service with an initialization parameter", function () {
 
-        var initialValue = "123abc";
+        var parameterValue = "123abc";
 
         var sut = new JsfIoc();
 
@@ -53,9 +53,9 @@ describe("JsfIoc", function () {
             parameters: ["_fooLevel"]
         });
 
-        var result = sut.Load("_foo", initialValue);
+        var result = sut.Load("_foo", parameterValue);
 
-        expect(result._fooLevel).toEqual(initialValue);
+        expect(result._fooLevel).toEqual(parameterValue);
     });
 
     it("Register and load a singleton", function () {
@@ -74,6 +74,23 @@ describe("JsfIoc", function () {
         var result2 = sut.Load("_foo");
 
         expect(result1).toBe(result2);
+    });
+
+    it("Services are not singletons by default", function () {
+
+        var initialValue = "abc123";
+
+        var sut = new JsfIoc();
+
+        sut.Register({
+            name: "_foo",
+            service: Foo
+        });
+
+        var result1 = sut.Load("_foo");
+        var result2 = sut.Load("_foo");
+
+        expect(result1).not.toBe(result2);
     });
 
     it("Register and load an instance", function () {
