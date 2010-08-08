@@ -92,16 +92,30 @@ describe("JsfIocTestDouble", function() {
     
     describe("Can preload dependencies, allowing them to be initialized for the test", function() {
     
-        it("Dependencies can be preloaded.", function() {
-        
-            var functionTestDouble = {};
-        
-            spyOn(sut, "TestDoublePolicy").andReturn(functionTestDouble);
+        describe("Dependencies can be preloaded.", function() {
+            it("by the service name", function() {
             
-            var preloadedService = sut.LoadTestDouble("_foo");
+                var functionTestDouble = {};
             
-            expect(sut.TestDoublePolicy).toHaveBeenCalledWith("_foo", "Run");
-            expect(preloadedService.Run).toBe(functionTestDouble);
+                spyOn(sut, "TestDoublePolicy").andReturn(functionTestDouble);
+                
+                var preloadedService = sut.LoadTestDouble("_foo");
+                
+                expect(sut.TestDoublePolicy).toHaveBeenCalledWith("_foo", "Run");
+                expect(preloadedService.Run).toBe(functionTestDouble);
+            });
+            
+            it("by the service class", function() {
+            
+                var functionTestDouble = {};
+            
+                spyOn(sut, "TestDoublePolicy").andReturn(functionTestDouble);
+                
+                var preloadedService = sut.LoadTestDouble(Foo);
+                
+                expect(sut.TestDoublePolicy).toHaveBeenCalledWith("_foo", "Run");
+                expect(preloadedService.Run).toBe(functionTestDouble);
+            });
         });
     
         it("The preloaded dependency is used initializing the service we want to test", function() {
