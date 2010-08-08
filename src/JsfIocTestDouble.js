@@ -24,9 +24,25 @@ JsfIocTestDouble.MockBehavior = function(dependencyName, functionName) {
 
 
 JsfIocTestDouble.prototype = {
-    Load : function(name) {
+    Load : function(service) {
     
-        var binding = this._ioc._bindings[name];
+        var binding = null;
+        
+        for(var bindingName in this._ioc._bindings)  {
+        
+            if (!this._ioc._bindings.hasOwnProperty(bindingName)) {
+                continue;
+            };
+            
+            if (this._ioc._bindings[bindingName].service === service) {
+                binding = this._ioc._bindings[bindingName];
+                break;
+            }
+        }
+
+        if (binding == null) {
+            throw "JsfIocTestDouble could not find binding";
+        };
 
         result = new binding.service;
 

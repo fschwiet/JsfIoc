@@ -46,7 +46,7 @@ describe("JsfIocTestDouble", function() {
             parameters: ["_a", "_b", "_c"]
         });
         
-        var result = sut.Load("_some", 1, 2, 3);
+        var result = sut.Load(ClassWithInitializationParameters, 1, 2, 3);
         
         expect(result._a).toEqual(1);
         expect(result._b).toEqual(2);
@@ -67,7 +67,7 @@ describe("JsfIocTestDouble", function() {
         
             spyOn(sut, "TestDoublePolicy").andReturn(functionTestDouble);
             
-            var bar = sut.Load("_bar");
+            var bar = sut.Load(Bar);
             
             expect(sut.TestDoublePolicy).toHaveBeenCalledWith("_foo", "Run");
             expect(bar._foo.Run).toBe(functionTestDouble);
@@ -108,7 +108,7 @@ describe("JsfIocTestDouble", function() {
         
             var preloadedService = sut.LoadTestDouble("_foo");
             
-            var service = sut.Load("_bar");
+            var service = sut.Load(Bar);
             
             expect(service._foo).toBe(preloadedService);
         });
