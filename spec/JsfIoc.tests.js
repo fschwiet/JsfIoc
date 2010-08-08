@@ -129,6 +129,4 @@ describe("JsfIoc", function () {
             }).toThrow("Register must be called with function parameter 'service'");
         });
     });
-
-    //it("allows a ser
 });

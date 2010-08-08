@@ -25,15 +25,21 @@ JsfIocTestDouble.MockBehavior = function(dependencyName, functionName) {
 
 JsfIocTestDouble.prototype = {
     Load : function(name) {
-        var result = this._ioc.Load(name);
+    
+        var binding = this._ioc._bindings[name];
 
-        for (var member in result) {
-        
-            if (!result.hasOwnProperty(member))
-                continue;
-        
-            result[member] = this.LoadTestDouble(member);
+        result = new binding.service;
+
+        if (binding.requires instanceof Array) for (var i = 0; i < binding.requires.length; i++) {
+            var dependency = binding.requires[i];
+            result[dependency] = this.LoadTestDouble(dependency);
         }
+
+        if (binding.parameters instanceof Array) for (var i = 0; i < binding.parameters.length; i++) {
+            var parameter = binding.parameters[i];
+            result[parameter] = arguments[1 + i];
+        }
+
         return result;
     },
     LoadTestDouble : function(name) {

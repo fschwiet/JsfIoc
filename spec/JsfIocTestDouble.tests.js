@@ -35,6 +35,24 @@ describe("JsfIocTestDouble", function() {
     });
 
 
+    it("can pass initialization parameters", function() {
+        
+        function ClassWithInitializationParameters() {
+        };
+      
+        ioc.Register({
+            name: "_some",
+            service: ClassWithInitializationParameters,
+            parameters: ["_a", "_b", "_c"]
+        });
+        
+        var result = sut.Load("_some", 1, 2, 3);
+        
+        expect(result._a).toEqual(1);
+        expect(result._b).toEqual(2);
+        expect(result._c).toEqual(3);
+    });
+
     describe("provides test doubles for each dependency", function() {
                 
         it("default test double behavior is to be a stub (succeed, returning undefined)", function() {

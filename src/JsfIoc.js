@@ -73,3 +73,5 @@ JsfIoc.prototype = {
         return result;
     }
 };
+
+var ioc = new JsfIoc();
