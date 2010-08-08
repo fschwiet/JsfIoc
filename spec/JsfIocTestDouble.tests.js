@@ -36,7 +36,6 @@ describe("JsfIocTestDouble", function() {
 
 
     describe("provides test doubles for each dependency", function() {
-        
                 
         it("default test double behavior is to be a stub (succeed, returning undefined)", function() {
             
@@ -46,27 +45,63 @@ describe("JsfIocTestDouble", function() {
         
         it("you can change the test double behavior", function() {
         
-            spyOn(sut, "TestDoublePolicy");
+            var functionTestDouble = {};
+        
+            spyOn(sut, "TestDoublePolicy").andReturn(functionTestDouble);
             
             var bar = sut.Load("_bar");
             
-            bar._foo.Run();
-            
-            expect(sut.TestDoublePolicy).toHaveBeenCalled()
+            expect(sut.TestDoublePolicy).toHaveBeenCalledWith("_foo", "Run");
+            expect(bar._foo.Run).toBe(functionTestDouble);
         });
         
         it("stub test behavior doesn't do anything", function() {
         
-            var result = JsfIocTestDouble.StubBehavior("_foo", "Run");
+            var behavior = JsfIocTestDouble.StubBehavior("_foo", "Run");
             
-            expect(result).not.toBeDefined();
+            expect(behavior()).not.toBeDefined();
         });
         
         it("mock behavior throws an exception", function() {
         
+            var behavior = JsfIocTestDouble.MockBehavior("_foo", "Run");
+            
             expect(function() {
-                var result = JsfIocTestDouble.MockBehavior("_foo", "Run");
-            }).toThrow("Unexpected call to _foo.Run()");
+                behavior(1,2,3);
+            }).toThrow("Unexpected call to _foo.Run() with 3 parameters");
+        });
+    });
+    
+    describe("Can preload dependencies, allowing them to be initialized for the test", function() {
+    
+        it("Dependencies can be preloaded.", function() {
+        
+            var functionTestDouble = {};
+        
+            spyOn(sut, "TestDoublePolicy").andReturn(functionTestDouble);
+            
+            var preloadedService = sut.LoadTestDouble("_foo");
+            
+            expect(sut.TestDoublePolicy).toHaveBeenCalledWith("_foo", "Run");
+            expect(preloadedService.Run).toBe(functionTestDouble);
+        });
+    
+        it("The preloaded dependency is used initializing the service we want to test", function() {
+        
+            var preloadedService = sut.LoadTestDouble("_foo");
+            
+            var service = sut.Load("_bar");
+            
+            expect(service._foo).toBe(preloadedService);
+        });
+    
+        it("Preload is idempotent", function() {
+        
+            var preloadedService1 = sut.LoadTestDouble("_foo");
+            var preloadedService2 = sut.LoadTestDouble("_foo");
+            
+            expect(preloadedService1).toBeDefined();
+            expect(preloadedService1).toBe(preloadedService2);
         });
     });
 });
