@@ -1,6 +1,6 @@
 
 
-describe("JsfIocTestDouble", function() {
+describe("FakeJsfIoc", function() {
 
     function Foo() {
     };
@@ -31,7 +31,7 @@ describe("JsfIocTestDouble", function() {
             requires: ["_foo"]
         });
         
-        sut = new JsfIocTestDouble(ioc);
+        sut = new FakeJsfIoc(ioc);
     });
 
 
@@ -58,7 +58,7 @@ describe("JsfIocTestDouble", function() {
         it("default test double behavior is to be a stub (succeed, returning undefined)", function() {
             
             expect(sut.TestDoublePolicy).toBeDefined();
-            expect(sut.TestDoublePolicy).toEqual(JsfIocTestDouble.StubBehavior);
+            expect(sut.TestDoublePolicy).toEqual(FakeJsfIoc.StubBehavior);
         });
         
         it("you can change the test double behavior", function() {
@@ -73,16 +73,16 @@ describe("JsfIocTestDouble", function() {
             expect(bar._foo.Run).toBe(functionTestDouble);
         });
         
-        it("stub test behavior doesn't do anything", function() {
+        it("stub behavior doesn't do anything", function() {
         
-            var behavior = JsfIocTestDouble.StubBehavior("_foo", "Run");
+            var behavior = FakeJsfIoc.StubBehavior("_foo", "Run");
             
             expect(behavior()).not.toBeDefined();
         });
         
         it("mock behavior throws an exception", function() {
         
-            var behavior = JsfIocTestDouble.MockBehavior("_foo", "Run");
+            var behavior = FakeJsfIoc.MockBehavior("_foo", "Run");
             
             expect(function() {
                 behavior(1,2,3);

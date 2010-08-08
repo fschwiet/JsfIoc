@@ -1,19 +1,19 @@
 
 
-function JsfIocTestDouble(ioc) {
+function FakeJsfIoc(ioc) {
 
     this._ioc = ioc;
     this._preloadedDependencies = [];
-    this.TestDoublePolicy = JsfIocTestDouble.StubBehavior;
+    this.TestDoublePolicy = FakeJsfIoc.StubBehavior;
 }
 
 
-JsfIocTestDouble.StubBehavior = function(dependencyName, functionName) { 
+FakeJsfIoc.StubBehavior = function(dependencyName, functionName) { 
     return function() {};
 };
 
 
-JsfIocTestDouble.MockBehavior = function(dependencyName, functionName) { 
+FakeJsfIoc.MockBehavior = function(dependencyName, functionName) { 
     
     return function() {
         throw "Unexpected call to " 
@@ -23,7 +23,7 @@ JsfIocTestDouble.MockBehavior = function(dependencyName, functionName) {
 };
 
 
-JsfIocTestDouble.prototype = {
+FakeJsfIoc.prototype = {
     Load : function(service) {
     
         var binding = this.GetBindingByClass(service);
@@ -81,7 +81,7 @@ JsfIocTestDouble.prototype = {
         }
 
         if (binding == null) {
-            throw "JsfIocTestDouble could not find binding";
+            throw "FakeJsfIoc could not find binding";
         };
 
         return binding;
