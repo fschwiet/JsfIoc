@@ -56,14 +56,18 @@ JsfIoc.prototype = {
 
         result = new binding.service;
 
-        if (binding.requires instanceof Array) for (var i = 0; i < binding.requires.length; i++) {
-            var dependency = binding.requires[i];
-            result[dependency] = this.Load(dependency);
+        if (binding.requires instanceof Array) {
+            for (var i = 0; i < binding.requires.length; i++) {
+                var dependency = binding.requires[i];
+                result[dependency] = this.Load(dependency);
+            }
         }
 
-        if (binding.parameters instanceof Array) for (var i = 0; i < binding.parameters.length; i++) {
-            var parameter = binding.parameters[i];
-            result[parameter] = arguments[1 + i];
+        if (binding.parameters instanceof Array) {
+            for (var i = 0; i < binding.parameters.length; i++) {
+                var parameter = binding.parameters[i];
+                result[parameter] = arguments[1 + i];
+            }
         }
 
         if (binding.singleton) {
