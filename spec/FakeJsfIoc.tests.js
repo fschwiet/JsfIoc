@@ -88,6 +88,16 @@ describe("FakeJsfIoc", function() {
                 behavior(1,2,3);
             }).toThrow("Unexpected call to _foo.Run() with 3 parameters");
         });
+        
+        it("useful error message if you specify a non-existing service", function() {
+        
+            function Unregistered_service() {
+            }
+        
+            expect(function() {
+                var behavior = sut.LoadTestDouble(Unregistered_service, "Run");
+            }).toThrow("FakeJsfIoc could not find service: " + Unregistered_service.toString());
+        });
     });
     
     describe("Can preload dependencies, allowing them to be initialized for the test", function() {

@@ -81,7 +81,8 @@ FakeJsfIoc.prototype = {
         }
 
         if (binding == null) {
-            throw "FakeJsfIoc could not find binding";
+        
+            throw "FakeJsfIoc could not find service: " + service;
         };
 
         return binding;
