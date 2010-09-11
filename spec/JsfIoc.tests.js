@@ -129,4 +129,81 @@ describe("JsfIoc", function () {
             }).toThrow("Register must be called with function parameter 'service'");
         });
     });
+
+    describe("Message broker behavior", function () {
+        function Source() {
+        }
+
+        function Listener() {
+        };
+
+        Listener.prototype.OnInitialize = function () { }
+
+        var sut;
+
+        beforeEach(function () {
+
+            sut = new JsfIoc();
+
+            sut.Register({
+                service: Source,
+                name: "_source",
+                eventSource: ["Initialize"]
+            });
+
+            sut.Register({
+                service: Listener,
+                name: "_listener",
+                eventListener: ["Initialize"]
+            });
+        });
+
+        it("source has member _notify<EventName> added", function () {
+
+            var source = sut.Load("_source");
+
+            expect(source._notifyInitialize).toEqual(jasmine.any(Function));
+        });
+
+        it("function _notify<EventName> calls listeners", function () {
+
+            var source = sut.Load("_source");
+
+            spyOn(Listener.prototype, "OnInitialize");
+
+            source._notifyInitialize();
+
+            expect(Listener.prototype.OnInitialize).toHaveBeenCalled();
+        });
+
+        it("function _notify<EventName> passes parameters to listeners", function () {
+
+            var source = sut.Load("_source");
+
+            spyOn(Listener.prototype, "OnInitialize");
+
+            source._notifyInitialize(1, 2, 3);
+
+            expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
+        });
+
+        describe("listeners can be called directly with the ioc container", function () {
+
+            it("with parameters", function () {
+                spyOn(Listener.prototype, "OnInitialize");
+
+                sut.NotifyEvent("Initialize", [1, 2, 3]);
+
+                expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
+            });
+
+            it("without parameters", function () {
+                spyOn(Listener.prototype, "OnInitialize");
+
+                sut.NotifyEvent("Initialize");
+
+                expect(Listener.prototype.OnInitialize).toHaveBeenCalled();
+            });
+        });
+    });
 });

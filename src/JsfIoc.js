@@ -32,6 +32,7 @@ function JsfIoc() {
 }
 
 JsfIoc.prototype = {
+
     Register: function (parameters) {
         if (typeof parameters.name != "string") {
             throw "Register must be called with string parameter 'name'";
@@ -41,10 +42,12 @@ JsfIoc.prototype = {
 
         this._bindings[parameters.name] = parameters;
     },
+
     RegisterInstance: function (name, instance) {
-    
+
         this._singletons[name] = instance;
     },
+
     Load: function (name) {
 
         var result = this._singletons[name];
@@ -70,11 +73,47 @@ JsfIoc.prototype = {
             }
         }
 
+        if (binding.eventSource instanceof Array) {
+            for (var i = 0; i < binding.eventSource.length; i++) {
+
+                var event = binding.eventSource[i];
+                var that = this;
+
+                result["_notify" + event] = function () {
+                    that.NotifyEvent(event, arguments);
+                };
+            }
+        }
+
         if (binding.singleton) {
             this._singletons[name] = result;
         }
 
         return result;
+    },
+
+    NotifyEvent: function (name, eventParameters) {
+
+        for (var bindingName in this._bindings) {
+
+            if (!this._bindings.hasOwnProperty(bindingName))
+                continue;
+
+            var events = this._bindings[bindingName].eventListener;
+
+            if (events instanceof Array) {
+
+                for (var i = 0; i < events.length; i++) {
+
+                    if (events[i] == name) {
+
+                        var listener = this.Load(bindingName);
+
+                        listener["On" + name].apply(listener, eventParameters || []);
+                    }
+                }
+            }
+        }
     }
 };
 

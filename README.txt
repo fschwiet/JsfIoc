@@ -10,6 +10,7 @@ To see how it is used, read the tests in "ioc.tests.js".  There the following fe
 - services may register initialization parameters to be provided when a service is first instantiated
 - services may be singletons
 - instances of existing objects can be registered as services
+- services can announce named events to all listening services
 
 Dependencies and initialization parameters are provided to the service instance by property injection.
 The service class does not need declare the properties, they are created after the service's constructor is called.
