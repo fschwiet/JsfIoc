@@ -66,7 +66,13 @@ JsfIoc.prototype = {
             }
         }
 
-        if (binding.parameters instanceof Array) {
+        if (binding.boundParameters) {
+            for (var i = 0; i < binding.parameters.length; i++) {
+                var parameter = binding.parameters[i];
+                result[parameter] = binding.boundParameters[parameter];
+            }
+        } 
+        else if (binding.parameters instanceof Array) {
             for (var i = 0; i < binding.parameters.length; i++) {
                 var parameter = binding.parameters[i];
                 result[parameter] = arguments[1 + i];
@@ -91,7 +97,20 @@ JsfIoc.prototype = {
 
         return result;
     },
+    Configure: function(name) {
 
+        var binding = this._bindings[name];
+        var boundParameters = {};
+
+        if (binding.parameters instanceof Array) {
+            for (var i = 0; i < binding.parameters.length; i++) {
+                var parameter = binding.parameters[i];
+                boundParameters[parameter] = arguments[1 + i];
+            }
+        }
+
+        binding.boundParameters = boundParameters;
+    },	
     NotifyEvent: function (name, eventParameters) {
 
         for (var bindingName in this._bindings) {

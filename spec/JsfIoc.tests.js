@@ -41,21 +41,44 @@ describe("JsfIoc", function () {
         expect(result._bar instanceof Bar).toBeTruthy();
     });
 
-    it("Register and load a service with an initialization parameter", function () {
+    describe("services can have configuration parameters they receive on startup", function() {
 
-        var parameterValue = "123abc";
+        it("Register and load a service with an initialization parameter", function () {
 
-        var sut = new JsfIoc();
+            var parameterValue = "123abc";
 
-        sut.Register({
-            name: "_foo",
-            service: Foo,
-            parameters: ["_fooLevel"]
+            var sut = new JsfIoc();
+
+            sut.Register({
+                name: "_foo",
+                service: Foo,
+                parameters: ["_fooLevel"]
+            });
+
+            var result = sut.Load("_foo", parameterValue);
+
+            expect(result._fooLevel).toEqual(parameterValue);
         });
+        
+        it("Services can have their configuration values set before they are loaded", function() {
 
-        var result = sut.Load("_foo", parameterValue);
+            var parameterValue = "123abc";
 
-        expect(result._fooLevel).toEqual(parameterValue);
+            var sut = new JsfIoc();
+
+            sut.Register({
+                name: "_foo",
+                service: Foo,
+                parameters: ["_fooLevel"]
+            });
+
+            sut.Configure("_foo", parameterValue);
+
+            var result = sut.Load("_foo");
+
+            expect(result._fooLevel).toEqual(parameterValue);
+
+        });
     });
 
     it("Register and load a singleton", function () {
