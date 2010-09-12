@@ -55,7 +55,7 @@ JsfIoc.prototype = {
         if (result)
             return result;
 
-        var binding = this._bindings[name];
+        var binding = this.GetBinding(name, "Load");
 
         result = new binding.service;
 
@@ -71,7 +71,7 @@ JsfIoc.prototype = {
                 var parameter = binding.parameters[i];
                 result[parameter] = binding.boundParameters[parameter];
             }
-        } 
+        }
         else if (binding.parameters instanceof Array) {
             for (var i = 0; i < binding.parameters.length; i++) {
                 var parameter = binding.parameters[i];
@@ -97,9 +97,10 @@ JsfIoc.prototype = {
 
         return result;
     },
-    Configure: function(name) {
+    Configure: function (name) {
 
-        var binding = this._bindings[name];
+        var binding = this.GetBinding(name, "Configure");
+
         var boundParameters = {};
 
         if (binding.parameters instanceof Array) {
@@ -110,7 +111,17 @@ JsfIoc.prototype = {
         }
 
         binding.boundParameters = boundParameters;
-    },	
+    },
+    GetBinding: function (name, caller) {
+
+        var binding = this._bindings[name];
+
+        if (typeof (binding) == "undefined") {
+            throw caller + " was called for undefined service '" + name + "'.";
+        }
+
+        return binding;
+    },
     NotifyEvent: function (name, eventParameters) {
 
         for (var bindingName in this._bindings) {

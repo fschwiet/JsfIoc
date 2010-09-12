@@ -41,7 +41,7 @@ describe("JsfIoc", function () {
         expect(result._bar instanceof Bar).toBeTruthy();
     });
 
-    describe("services can have configuration parameters they receive on startup", function() {
+    describe("services can have configuration parameters they receive on startup", function () {
 
         it("Register and load a service with an initialization parameter", function () {
 
@@ -59,8 +59,8 @@ describe("JsfIoc", function () {
 
             expect(result._fooLevel).toEqual(parameterValue);
         });
-        
-        it("Services can have their configuration values set before they are loaded", function() {
+
+        it("Services can have their configuration values set before they are loaded", function () {
 
             var parameterValue = "123abc";
 
@@ -129,7 +129,7 @@ describe("JsfIoc", function () {
         expect(result).toBe(instance);
     });
 
-    describe("Register error handling", function () {
+    describe("Descriptive exceptions for common failures", function () {
 
         var sut;
 
@@ -138,18 +138,37 @@ describe("JsfIoc", function () {
             sut = new JsfIoc();
         });
 
-        it("Parameter 'name' should be a string", function () {
+        describe("check parameters Register()", function () {
 
-            expect(function () {
-                sut.Register({});
-            }).toThrow("Register must be called with string parameter 'name'");
+            it("Parameter 'name' should be a string", function () {
+
+                expect(function () {
+                    sut.Register({});
+                }).toThrow("Register must be called with string parameter 'name'");
+            });
+
+            it("Parameter 'service' should be a function", function () {
+
+                expect(function () {
+                    sut.Register({ name: "xyz321" });
+                }).toThrow("Register must be called with function parameter 'service'");
+            });
         });
 
-        it("Parameter 'service' should be a function", function () {
+        describe("check parameters that name an existing service", function () {
 
-            expect(function () {
-                sut.Register({ name: "xyz321" });
-            }).toThrow("Register must be called with function parameter 'service'");
+            it ("for Load()", function () {
+
+                expect(function () {
+                    sut.Load("_undefinedService");
+                }).toThrow("Load was called for undefined service '_undefinedService'.");
+            });
+
+            it ("for Configure()", function () {
+                expect(function () {
+                    sut.Configure("_anotherUndefinedService");
+                }).toThrow("Configure was called for undefined service '_anotherUndefinedService'.");
+            });
         });
     });
 
