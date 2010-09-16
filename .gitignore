@@ -3,3 +3,4 @@ _ReSharper.*
 *.resharper.user
 *.sln
 *.suo
+build\
