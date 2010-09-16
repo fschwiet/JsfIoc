@@ -30,17 +30,17 @@ FakeJsfIoc.prototype = {
 
         result = new binding.service;
 
-        if (binding.requires instanceof Array) for (var i = 0; i < binding.requires.length; i++) {
+        if (binding.requires) for (var i = 0; i < binding.requires.length; i++) {
             var dependency = binding.requires[i];
             result[dependency] = this.LoadTestDouble(dependency);
         }
 
-        if (binding.parameters instanceof Array) for (var i = 0; i < binding.parameters.length; i++) {
+        if (binding.parameters) for (var i = 0; i < binding.parameters.length; i++) {
             var parameter = binding.parameters[i];
-            result[parameter] = arguments[1 + i];
+            result[parameter.name] = arguments[1 + i];
         }
 
-        if (binding.eventSource instanceof Array) for (var i = 0; i < binding.eventSource.length; i++) {
+        if (binding.eventSource) for (var i = 0; i < binding.eventSource.length; i++) {
 
             var serviceName = binding.service.toString();
 

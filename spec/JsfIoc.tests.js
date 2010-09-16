@@ -77,7 +77,61 @@ describe("JsfIoc", function () {
             var result = sut.Load("_foo");
 
             expect(result._fooLevel).toEqual(parameterValue);
+        });
 
+        describe("service parameters can have validation", function () {
+
+            function IntegerParameter(name) {
+                return {
+                    name: name,
+                    validator: function (value) {
+                        return typeof(value) == "number";
+                    }
+                };
+            }
+
+            var sut;
+
+            beforeEach(function () {
+
+                sut = new JsfIoc();
+
+                sut.Register({
+                    service: Foo,
+                    name: "_foo",
+                    parameters: [IntegerParameter("_parameter")]
+                });
+            });
+
+            it("Configure() accepts valid parameters", function () {
+
+                sut.Configure("_foo", 5);
+
+                var instance = sut.Load("_foo");
+
+                expect(instance._parameter).toEqual(5);
+            });
+
+            it("Configure() rejects invalid parameters", function () {
+
+                expect(function () {
+                    sut.Configure("_foo", "five");
+                }).toThrow("Invalid parameter passed to _foo.");
+            });
+
+            it("Load() accepts valid parameters", function () {
+
+                var instance = sut.Load("_foo", 65);
+
+                expect(instance._parameter).toEqual(65);
+            });
+
+            it("Load() rejects invalid parameters", function () {
+
+                expect(function () {
+                    sut.Load("_foo", "five");
+                }).toThrow("Invalid parameter passed to _foo.");
+            });
         });
     });
 
@@ -157,14 +211,14 @@ describe("JsfIoc", function () {
 
         describe("check parameters that name an existing service", function () {
 
-            it ("for Load()", function () {
+            it("for Load()", function () {
 
                 expect(function () {
                     sut.Load("_undefinedService");
                 }).toThrow("Load was called for undefined service '_undefinedService'.");
             });
 
-            it ("for Configure()", function () {
+            it("for Configure()", function () {
                 expect(function () {
                     sut.Configure("_anotherUndefinedService");
                 }).toThrow("Configure was called for undefined service '_anotherUndefinedService'.");

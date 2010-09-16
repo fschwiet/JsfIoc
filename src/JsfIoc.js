@@ -40,6 +40,18 @@ JsfIoc.prototype = {
             throw "Register must be called with function parameter 'service'";
         };
 
+        if (parameters.parameters) {
+            for (var i = 0; i < parameters.parameters.length; i++) {
+                if (typeof parameters.parameters[i] == "string") {
+                    var name = parameters.parameters[i];
+                    parameters.parameters[i] = {
+                        name: name,
+                        validator: function () { return true; }
+                    };
+                }
+            }
+        }
+
         this._bindings[parameters.name] = parameters;
     },
 
@@ -59,7 +71,7 @@ JsfIoc.prototype = {
 
         result = new binding.service;
 
-        if (binding.requires instanceof Array) {
+        if (binding.requires) {
             for (var i = 0; i < binding.requires.length; i++) {
                 var dependency = binding.requires[i];
                 result[dependency] = this.Load(dependency);
@@ -69,17 +81,16 @@ JsfIoc.prototype = {
         if (binding.boundParameters) {
             for (var i = 0; i < binding.parameters.length; i++) {
                 var parameter = binding.parameters[i];
-                result[parameter] = binding.boundParameters[parameter];
+                result[parameter.name] = binding.boundParameters[parameter.name];
             }
         }
-        else if (binding.parameters instanceof Array) {
+        else if (binding.parameters) {
             for (var i = 0; i < binding.parameters.length; i++) {
-                var parameter = binding.parameters[i];
-                result[parameter] = arguments[1 + i];
+                this._SetParameterToObject(binding, binding.parameters[i], result, arguments[1 + i]);
             }
         }
 
-        if (binding.eventSource instanceof Array) {
+        if (binding.eventSource) {
             for (var i = 0; i < binding.eventSource.length; i++) {
 
                 var event = binding.eventSource[i];
@@ -103,10 +114,9 @@ JsfIoc.prototype = {
 
         var boundParameters = {};
 
-        if (binding.parameters instanceof Array) {
+        if (binding.parameters) {
             for (var i = 0; i < binding.parameters.length; i++) {
-                var parameter = binding.parameters[i];
-                boundParameters[parameter] = arguments[1 + i];
+                this._SetParameterToObject(binding, binding.parameters[i], boundParameters, arguments[1 + i]);
             }
         }
 
@@ -131,7 +141,7 @@ JsfIoc.prototype = {
 
             var events = this._bindings[bindingName].eventListener;
 
-            if (events instanceof Array) {
+            if (events) {
 
                 for (var i = 0; i < events.length; i++) {
 
@@ -144,6 +154,13 @@ JsfIoc.prototype = {
                 }
             }
         }
+    },
+    _SetParameterToObject: function (binding, parameter, target, value) {
+        if (!parameter.validator(value)) {
+            throw new Error("Invalid parameter passed to " + binding.name + ".");
+        }
+
+        target[parameter.name] = value;
     }
 };
 
