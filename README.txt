@@ -12,11 +12,12 @@ To see how it is used, read the tests in "ioc.tests.js".  There the following fe
 - instances of existing objects can be registered as services
 - services can announce named events to all listening services
 
-Dependencies and initialization parameters are provided to the service instance by property injection.
-The service class does not need declare the properties, they are created after the service's constructor is called.
+JsfIoc allows services to be Register()d, with various service parameters.
 
-RegisterInstance() is provided in the case that you have statically implemented singletons you want to provide as dependencies to other services.  Otherwise using Register({singleton:true}) is preferred for singletons.
+When a service is JsfIoc:Load()d, dependencies and initialization parameters are provided to the service instance by property injection.
+The name of the property injected is the name registered for the dependency or parameter when the service was Register()d.
 
-The name of services and properties also become the property name they are assigned to on the target.  For this reason, they should follow the same naming conventions as private members of a class.  For me, that means starting with a '_'.
+Register({singleton:true, ..}) can be used to register a singleton service.
+RegisterInstance(serviceName, serviceInstance) can associate an existing service instance with a service name.
 
-FakeJsfIoc can be used to test instances wired by the Ioc container.  The fake ioc container will load stubs or mocks depending on the test double policy.  The test doubles can have expectations set on them before and after loading the system under test.  See FakeJsfIoc.tests.js
+FakeJsfIoc does automocking, to make unit testing easier.  The system under test is loaded with FakeJsfIoc:Load.  Dependencies will be provided as stubs or mocks depending on the policy set to FakeJsfIoc:TestDoublePolicy.    The test doubles can be accessed with FakeJsfIoc:LoadTestDouble before or after creating the system under test, in order to set expectations with jasmine's spyOn.  See FakeJsfIoc.tests.js
