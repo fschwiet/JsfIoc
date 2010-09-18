@@ -147,7 +147,21 @@ describe("FakeJsfIoc", function () {
         });
     });
 
-    describe("Fake message broker behavior", function () {
+    describe("Can load mulitiple components under test", function () {
+
+        it("IncludeReal indicates services to be loaded as defined (not as test doubles)", function () {
+
+            var result = sut.IncludeReal(["_foo"]).Load(Bar);
+
+            spyOn(Foo.prototype, "Run");
+
+            result._foo.Run();
+
+            expect(Foo.prototype.Run).toHaveBeenCalled();
+        });
+    });
+
+    describe("Supports fake message broker", function () {
 
         function Source() {
         };

@@ -4,6 +4,7 @@ function FakeJsfIoc(ioc) {
 
     this._ioc = ioc;
     this._preloadedDependencies = [];
+    this._includedServices = [];
     this.TestDoublePolicy = FakeJsfIoc.StubBehavior;
 }
 
@@ -28,11 +29,24 @@ FakeJsfIoc.prototype = {
 
         var binding = this.GetBindingByClass(service);
 
-        result = new binding.service;
+        var result = new binding.service;
 
-        if (binding.requires) for (var i = 0; i < binding.requires.length; i++) {
-            var dependency = binding.requires[i];
-            result[dependency] = this.LoadTestDouble(dependency);
+        if (binding.requires) {
+
+            dependencyLoadingLoop:
+            for (var i = 0; i < binding.requires.length; i++) {
+
+                var dependency = binding.requires[i];
+
+                for (var includeIndex = 0; includeIndex < this._includedServices.length; includeIndex++) {
+                    if (dependency == this._includedServices[includeIndex]) {
+                        result[dependency] = this.Load(this._ioc._bindings[dependency].service);
+                        continue dependencyLoadingLoop;
+                    }
+                }
+
+                result[dependency] = this.LoadTestDouble(dependency);
+            }
         }
 
         if (binding.parameters) for (var i = 0; i < binding.parameters.length; i++) {
@@ -75,6 +89,20 @@ FakeJsfIoc.prototype = {
         this._preloadedDependencies[name] = result;
 
         return result;
+    },
+    IncludeReal: function (includedServices) {
+
+        var that = this;
+
+        return {
+            Load: function () {
+                that._includedServices = includedServices;
+                var result = that.Load.apply(that, arguments);
+                that._includedServices = [];
+                return result;
+            }
+        }
+
     },
     GetBindingByClass: function (service) {
         var binding = null;
