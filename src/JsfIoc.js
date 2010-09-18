@@ -86,7 +86,7 @@ JsfIoc.prototype = {
         }
         else if (binding.parameters) {
             for (var i = 0; i < binding.parameters.length; i++) {
-                this._SetParameterToObject(binding, binding.parameters[i], result, arguments[1 + i]);
+                this._SetParameterToObject(binding, binding.parameters[i], result, arguments[1 + i], i);
             }
         }
 
@@ -116,7 +116,7 @@ JsfIoc.prototype = {
 
         if (binding.parameters) {
             for (var i = 0; i < binding.parameters.length; i++) {
-                this._SetParameterToObject(binding, binding.parameters[i], boundParameters, arguments[1 + i]);
+                this._SetParameterToObject(binding, binding.parameters[i], boundParameters, arguments[1 + i], i);
             }
         }
 
@@ -155,9 +155,9 @@ JsfIoc.prototype = {
             }
         }
     },
-    _SetParameterToObject: function (binding, parameter, target, value) {
+    _SetParameterToObject: function (binding, parameter, target, value, index) {
         if (!parameter.validator(value)) {
-            throw new Error("Invalid parameter passed to " + binding.name + ".");
+            throw new Error("Invalid parameter #" + (index + 1) + " passed to " + binding.name + ".");
         }
 
         target[parameter.name] = value;
