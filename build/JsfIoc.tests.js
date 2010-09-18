@@ -36,7 +36,7 @@ describe("FakeJsfIoc", function () {
     });
 
 
-    it("can pass initialization parameters", function () {
+    it("configuration parameters can be passed on Load()", function () {
 
         function ClassWithInitializationParameters() {
         };
@@ -54,7 +54,7 @@ describe("FakeJsfIoc", function () {
         expect(result._c).toEqual(3);
     });
 
-    describe("provides test doubles for each dependency", function () {
+    describe("Test doubles are provided for each dependency", function () {
 
         it("default test double behavior is to be a stub (succeed, returning undefined)", function () {
 
@@ -62,7 +62,7 @@ describe("FakeJsfIoc", function () {
             expect(sut.TestDoublePolicy).toEqual(FakeJsfIoc.StubBehavior);
         });
 
-        it("you can change the test double behavior", function () {
+        it("Change TestDoublePolicy's value to change test double", function () {
 
             var functionTestDouble = {};
 
@@ -101,9 +101,9 @@ describe("FakeJsfIoc", function () {
         });
     });
 
-    describe("Can preload dependencies, allowing them to be initialized for the test", function () {
+    describe("Dependencies can be loaded to customize the test (spying, stubing, etc)", function () {
 
-        describe("Dependencies can be preloaded.", function () {
+        describe("Test doubles can be loaded", function () {
             it("by the service name", function () {
 
                 var functionTestDouble = {};
@@ -129,7 +129,7 @@ describe("FakeJsfIoc", function () {
             });
         });
 
-        it("The preloaded dependency is used initializing the service we want to test", function () {
+        it("The test double is used to satisfy dependencies for the system under test", function () {
 
             var preloadedService = sut.LoadTestDouble("_foo");
 
@@ -138,7 +138,7 @@ describe("FakeJsfIoc", function () {
             expect(service._foo).toBe(preloadedService);
         });
 
-        it("Preload is idempotent", function () {
+        it("LoadTestDouble is idempotent", function () {
 
             var preloadedService1 = sut.LoadTestDouble("_foo");
             var preloadedService2 = sut.LoadTestDouble("_foo");
@@ -148,12 +148,26 @@ describe("FakeJsfIoc", function () {
         });
     });
 
-    describe("Fake message broker behavior", function () {
+    describe("Can load mulitiple components for the test (instead of just test doubles)", function () {
+
+        it("IncludeReal indicates services to be loaded as defined (not as test doubles)", function () {
+
+            var result = sut.IncludeReal(["_foo"]).Load(Bar);
+
+            spyOn(Foo.prototype, "Run");
+
+            result._foo.Run();
+
+            expect(Foo.prototype.Run).toHaveBeenCalled();
+        });
+    });
+
+    describe("Event sources have their notify function added", function () {
 
         function Source() {
         };
 
-        it("if a service is an event source, the _notify<EventName> member is a mock", function () {
+        it("_notifyEVENTNAME() is added according to the current test double policy", function () {
 
             ioc.Register({
                 service: Source,
@@ -215,9 +229,9 @@ describe("JsfIoc", function () {
         expect(result._bar instanceof Bar).toBeTruthy();
     });
 
-    describe("services can have configuration parameters they receive on startup", function () {
+    describe("services can have parameters to be determined later", function () {
 
-        it("Register and load a service with an initialization parameter", function () {
+        it("The parameters can be specified when a service is Load()d", function () {
 
             var parameterValue = "123abc";
 
@@ -234,7 +248,7 @@ describe("JsfIoc", function () {
             expect(result._fooLevel).toEqual(parameterValue);
         });
 
-        it("Services can have their configuration values set before they are loaded", function () {
+        it("parameters can be set before Load() using Configure()", function () {
 
             var parameterValue = "123abc";
 
@@ -253,13 +267,13 @@ describe("JsfIoc", function () {
             expect(result._fooLevel).toEqual(parameterValue);
         });
 
-        describe("service parameters can have validation", function () {
+        describe("Parameters can have validation", function () {
 
             function IntegerParameter(name) {
                 return {
                     name: name,
                     validator: function (value) {
-                        return typeof(value) == "number";
+                        return typeof (value) == "number";
                     }
                 };
             }
@@ -286,7 +300,7 @@ describe("JsfIoc", function () {
                 expect(instance._parameter).toEqual(5);
             });
 
-            it("Configure() rejects invalid parameters", function () {
+            it("Configure() rejects invalid parameters by throwing an exception", function () {
 
                 expect(function () {
                     sut.Configure("_foo", "five");
@@ -300,7 +314,7 @@ describe("JsfIoc", function () {
                 expect(instance._parameter).toEqual(65);
             });
 
-            it("Load() rejects invalid parameters", function () {
+            it("Load() rejects invalid parameters by throwing an exception", function () {
 
                 expect(function () {
                     sut.Load("_foo", "five");
@@ -309,42 +323,44 @@ describe("JsfIoc", function () {
         });
     });
 
-    it("Register and load a singleton", function () {
+    describe("Service instance lifetime", function () {
+        it("A service may be registered as a singleton", function () {
 
-        var initialValue = "abc123";
+            var initialValue = "abc123";
 
-        var sut = new JsfIoc();
+            var sut = new JsfIoc();
 
-        sut.Register({
-            name: "_foo",
-            service: Foo,
-            singleton: true
+            sut.Register({
+                name: "_foo",
+                service: Foo,
+                singleton: true
+            });
+
+            var result1 = sut.Load("_foo");
+            var result2 = sut.Load("_foo");
+
+            expect(result1).toBe(result2);
         });
 
-        var result1 = sut.Load("_foo");
-        var result2 = sut.Load("_foo");
+        it("Services, by default, are not singletons", function () {
 
-        expect(result1).toBe(result2);
-    });
+            var initialValue = "abc123";
 
-    it("Services are not singletons by default", function () {
+            var sut = new JsfIoc();
 
-        var initialValue = "abc123";
+            sut.Register({
+                name: "_foo",
+                service: Foo
+            });
 
-        var sut = new JsfIoc();
+            var result1 = sut.Load("_foo");
+            var result2 = sut.Load("_foo");
 
-        sut.Register({
-            name: "_foo",
-            service: Foo
+            expect(result1).not.toBe(result2);
         });
-
-        var result1 = sut.Load("_foo");
-        var result2 = sut.Load("_foo");
-
-        expect(result1).not.toBe(result2);
     });
 
-    it("Register and load an instance", function () {
+    it("A service instance can be registered", function () {
 
         var instance = new Foo();
 
@@ -357,7 +373,7 @@ describe("JsfIoc", function () {
         expect(result).toBe(instance);
     });
 
-    describe("Descriptive exceptions for common failures", function () {
+    describe("Common developer mistakes throw descriptive exceptions", function () {
 
         var sut;
 
@@ -366,7 +382,7 @@ describe("JsfIoc", function () {
             sut = new JsfIoc();
         });
 
-        describe("check parameters Register()", function () {
+        describe("for Register()", function () {
 
             it("Parameter 'name' should be a string", function () {
 
@@ -383,7 +399,7 @@ describe("JsfIoc", function () {
             });
         });
 
-        describe("check parameters that name an existing service", function () {
+        describe("invalid service references are identified", function () {
 
             it("for Load()", function () {
 
@@ -400,7 +416,8 @@ describe("JsfIoc", function () {
         });
     });
 
-    describe("Message broker behavior", function () {
+    describe("Simple event dispatching", function () {
+
         function Source() {
         }
 
@@ -428,36 +445,43 @@ describe("JsfIoc", function () {
             });
         });
 
-        it("source has member _notify<EventName> added", function () {
+        describe("The event source uses _notifyEVENTNAME() to notify listeners", function () {
 
-            var source = sut.Load("_source");
+            var source;
 
-            expect(source._notifyInitialize).toEqual(jasmine.any(Function));
+            beforeEach(function () {
+                source = sut.Load("_source");
+            });
+
+            it("source has _notifyEVENTNAME() injected as a property", function () {
+
+                expect(source._notifyInitialize).toEqual(jasmine.any(Function));
+            });
+
+            it("_notifyEVENTNAME() notifies listeners", function () {
+
+                var source = sut.Load("_source");
+
+                spyOn(Listener.prototype, "OnInitialize");
+
+                source._notifyInitialize();
+
+                expect(Listener.prototype.OnInitialize).toHaveBeenCalled();
+            });
+
+            it("_notifyEVENTNAME() can pass event parameters", function () {
+
+                var source = sut.Load("_source");
+
+                spyOn(Listener.prototype, "OnInitialize");
+
+                source._notifyInitialize(1, 2, 3);
+
+                expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
+            });
         });
 
-        it("function _notify<EventName> calls listeners", function () {
-
-            var source = sut.Load("_source");
-
-            spyOn(Listener.prototype, "OnInitialize");
-
-            source._notifyInitialize();
-
-            expect(Listener.prototype.OnInitialize).toHaveBeenCalled();
-        });
-
-        it("function _notify<EventName> passes parameters to listeners", function () {
-
-            var source = sut.Load("_source");
-
-            spyOn(Listener.prototype, "OnInitialize");
-
-            source._notifyInitialize(1, 2, 3);
-
-            expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
-        });
-
-        describe("listeners can be called directly with the ioc container", function () {
+        describe("Listeners can be called directly with the ioc container", function () {
 
             it("with parameters", function () {
                 spyOn(Listener.prototype, "OnInitialize");
