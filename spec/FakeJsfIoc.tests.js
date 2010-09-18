@@ -35,7 +35,7 @@ describe("FakeJsfIoc", function () {
     });
 
 
-    it("can pass initialization parameters", function () {
+    it("configuration parameters can be passed on Load()", function () {
 
         function ClassWithInitializationParameters() {
         };
@@ -53,7 +53,7 @@ describe("FakeJsfIoc", function () {
         expect(result._c).toEqual(3);
     });
 
-    describe("provides test doubles for each dependency", function () {
+    describe("Test doubles are provided for each dependency", function () {
 
         it("default test double behavior is to be a stub (succeed, returning undefined)", function () {
 
@@ -61,7 +61,7 @@ describe("FakeJsfIoc", function () {
             expect(sut.TestDoublePolicy).toEqual(FakeJsfIoc.StubBehavior);
         });
 
-        it("you can change the test double behavior", function () {
+        it("Change TestDoublePolicy's value to change test double", function () {
 
             var functionTestDouble = {};
 
@@ -100,9 +100,9 @@ describe("FakeJsfIoc", function () {
         });
     });
 
-    describe("Can preload dependencies, allowing them to be initialized for the test", function () {
+    describe("Dependencies can be loaded to customize the test (spying, stubing, etc)", function () {
 
-        describe("Dependencies can be preloaded.", function () {
+        describe("Test doubles can be loaded", function () {
             it("by the service name", function () {
 
                 var functionTestDouble = {};
@@ -128,7 +128,7 @@ describe("FakeJsfIoc", function () {
             });
         });
 
-        it("The preloaded dependency is used initializing the service we want to test", function () {
+        it("The test double is used to satisfy dependencies for the system under test", function () {
 
             var preloadedService = sut.LoadTestDouble("_foo");
 
@@ -137,7 +137,7 @@ describe("FakeJsfIoc", function () {
             expect(service._foo).toBe(preloadedService);
         });
 
-        it("Preload is idempotent", function () {
+        it("LoadTestDouble is idempotent", function () {
 
             var preloadedService1 = sut.LoadTestDouble("_foo");
             var preloadedService2 = sut.LoadTestDouble("_foo");
@@ -147,7 +147,7 @@ describe("FakeJsfIoc", function () {
         });
     });
 
-    describe("Can load mulitiple components under test", function () {
+    describe("Can load mulitiple components for the test (instead of just test doubles)", function () {
 
         it("IncludeReal indicates services to be loaded as defined (not as test doubles)", function () {
 
@@ -161,12 +161,12 @@ describe("FakeJsfIoc", function () {
         });
     });
 
-    describe("Supports fake message broker", function () {
+    describe("Event sources have their notify function added", function () {
 
         function Source() {
         };
 
-        it("if a service is an event source, the _notify<EventName> member is a mock", function () {
+        it("_notifyEVENTNAME() is added according to the current test double policy", function () {
 
             ioc.Register({
                 service: Source,
