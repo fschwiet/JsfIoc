@@ -304,7 +304,7 @@ describe("JsfIoc", function () {
 
                 expect(function () {
                     sut.Configure("_foo", "five");
-                }).toThrow("Invalid parameter passed to _foo.");
+                }).toThrow("Invalid parameter #1 passed to _foo.");
             });
 
             it("Load() accepts valid parameters", function () {
@@ -318,7 +318,7 @@ describe("JsfIoc", function () {
 
                 expect(function () {
                     sut.Load("_foo", "five");
-                }).toThrow("Invalid parameter passed to _foo.");
+                }).toThrow("Invalid parameter #1 passed to _foo.");
             });
         });
     });
