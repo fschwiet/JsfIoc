@@ -82,7 +82,7 @@ FakeJsfIoc.prototype = {
             return this._preloadedDependencies[name];
         }
 
-        var result = this._ioc.Load(name);
+        var result = new (this._ioc._bindings[name].service);
 
         this.ReplaceMemberFunctionsWithTestDouble(result, name);
 
