@@ -31,6 +31,8 @@ describe("FakeJsfIoc", function () {
             requires: ["_foo"]
         });
 
+        ioc.RegisterInstance("_fooInstance", new Foo());
+
         sut = new FakeJsfIoc(ioc);
     });
 
@@ -55,7 +57,7 @@ describe("FakeJsfIoc", function () {
 
     describe("Test doubles are provided for each dependency", function () {
 
-        it("default test double behavior is to be a stub (succeed, returning undefined)", function () {
+        it("TestDoublePolicy, which determines behavior of new test doubles, defaults to using stubs (calls succeed, returning undefined)", function () {
 
             expect(sut.TestDoublePolicy).toBeDefined();
             expect(sut.TestDoublePolicy).toEqual(FakeJsfIoc.StubBehavior);
@@ -102,7 +104,7 @@ describe("FakeJsfIoc", function () {
 
     describe("Dependencies can be loaded to customize the test (spying, stubing, etc)", function () {
 
-        describe("Test doubles can be loaded", function () {
+        describe("Test doubles can be loaded for services", function () {
             it("by the service name", function () {
 
                 var functionTestDouble = {};
@@ -124,6 +126,20 @@ describe("FakeJsfIoc", function () {
                 var preloadedService = sut.LoadTestDouble(Foo);
 
                 expect(sut.TestDoublePolicy).toHaveBeenCalledWith("_foo", "Run");
+                expect(preloadedService.Run).toBe(functionTestDouble);
+            });
+        });
+
+        describe("Test doubles can be loaded for services registered with RegisterInstance()", function() {
+            it("by the service name", function() {
+
+                var functionTestDouble = {};
+
+                spyOn(sut, "TestDoublePolicy").andReturn(functionTestDouble);
+
+                var preloadedService = sut.LoadTestDouble("_fooInstance");
+
+                expect(sut.TestDoublePolicy).toHaveBeenCalledWith("_fooInstance", "Run");
                 expect(preloadedService.Run).toBe(functionTestDouble);
             });
         });

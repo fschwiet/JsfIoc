@@ -82,9 +82,13 @@ FakeJsfIoc.prototype = {
             return this._preloadedDependencies[name];
         }
 
-        var result = this._ioc.Load(name);
+        var result = this._ioc._singletons[name];
 
-        this.ReplaceMemberFunctionsWithTestDouble(result, name);
+        if (!result) {
+            result = new (this._ioc._bindings[name].service);
+        }
+
+        result = this.CloneAsTestDouble(result, name);
 
         this._preloadedDependencies[name] = result;
 
@@ -126,11 +130,16 @@ FakeJsfIoc.prototype = {
 
         return binding;
     },
-    ReplaceMemberFunctionsWithTestDouble: function (obj, name) {
+    CloneAsTestDouble: function (obj, name) {
+
+        var result = {};
+
         for (var memberFunction in obj) {
             // jasmine.log("replacing " + member + "." + memberFunction);
 
-            obj[memberFunction] = this.TestDoublePolicy(name, memberFunction);
+            result[memberFunction] = this.TestDoublePolicy(name, memberFunction);
         }
+
+        return result;
     }
 };
