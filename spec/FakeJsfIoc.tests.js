@@ -130,8 +130,8 @@ describe("FakeJsfIoc", function () {
             });
         });
 
-        describe("Test doubles can be loaded for services registered with RegisterInstance()", function() {
-            it("by the service name", function() {
+        describe("Test doubles can be loaded for services registered with RegisterInstance()", function () {
+            it("by the service name", function () {
 
                 var functionTestDouble = {};
 
@@ -163,11 +163,20 @@ describe("FakeJsfIoc", function () {
         });
     });
 
-    describe("Can load mulitiple components for the test (instead of just test doubles)", function () {
+    describe("use IncludeReal load other required services directly(without test doubles)", function () {
 
-        it("IncludeReal indicates services to be loaded as defined (not as test doubles)", function () {
-
+        it("pass in an array of service names", function () {
             var result = sut.IncludeReal(["_foo"]).Load(Bar);
+
+            spyOn(Foo.prototype, "Run");
+
+            result._foo.Run();
+
+            expect(Foo.prototype.Run).toHaveBeenCalled();
+        });
+
+        it("pass in a single service name", function () {
+            var result = sut.IncludeReal("_foo").Load(Bar);
 
             spyOn(Foo.prototype, "Run");
 

@@ -93,12 +93,12 @@ JsfIoc.prototype = {
         if (binding.eventSource) {
             for (var i = 0; i < binding.eventSource.length; i++) {
 
-                var event = binding.eventSource[i];
-                var that = this;
+                (function (event, that) {
 
-                result["_notify" + event] = function () {
-                    that.NotifyEvent(event, arguments);
-                };
+                    result["_notify" + event] = function () {
+                        that.NotifyEvent(event, arguments);
+                    };
+                })(binding.eventSource[i], this);
             }
         }
 

@@ -98,6 +98,10 @@ FakeJsfIoc.prototype = {
 
         var that = this;
 
+        if (typeof(includedServices) == "string") {
+            includedServices = [includedServices];
+        }
+
         return {
             Load: function () {
                 that._includedServices = includedServices;

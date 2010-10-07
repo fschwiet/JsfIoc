@@ -291,6 +291,23 @@ describe("JsfIoc", function () {
 
                 expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
             });
+
+            it("bugfix: _notifyEVENTNAME() should create unique functional scope per _notify over-ride", function () {
+
+                sut.Register({
+                    service: Source,
+                    name: "_multisource",
+                    eventSource: ["AnotherEvent", "Initialize", "HelloWorld"]
+                });
+
+                spyOn(Listener.prototype, "OnInitialize");
+
+                var source = sut.Load("_multisource");
+
+                source._notifyInitialize(1, 2, 3);
+
+                expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
+            });
         });
 
         describe("Listeners can be called directly with the ioc container", function () {
