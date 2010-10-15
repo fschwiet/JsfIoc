@@ -126,4 +126,29 @@ describe("dependency graphing", function () {
             ["Bar", "FooBar", 1]
         ]);
     });
+
+    it("SimpleGraph", function () {
+
+        var expected = '\
+FooBarbazBarBaz\n\
+    BarBaz\n\
+        Bar\n\
+        Baz\n\
+    Foo\n\
+    Bar\n\
+    Baz\n\
+FooBar\n\
+    Foo\n\
+    Bar\n\
+';
+
+        var result = sut.SimpleGraph();
+                
+        var pre = $("<pre></pre>");
+        pre.text(result);
+        $("body").append(pre);
+        
+        expect(result).toEqual(expected);
+    });
+
 });

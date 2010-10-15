@@ -121,5 +121,16 @@ DependencyGrapher.prototype = {
 
             this.VisitDependencies(visitor, requires, node, depth + 1);
         };
+    },
+
+    SimpleGraph: function() {
+        
+        var result = "";
+
+        this.VisitDependencies(function(node, parent, depth){
+            result += new Array(depth+1).join("    ") + node + "\n";
+        });
+
+        return result;
     }
 }
