@@ -20,6 +20,9 @@
  			Author: Kyle Scholz      http://kylescholz.com/
  			Copyright: 2006-2007
  		-->
+
+        <script type="text/javascript" src="../../../jquery/jquery-1.4.2.js"></script>
+
 		
 		<!-- JSViz Libraries -->
 		<script language="JavaScript" src="../physics/ParticleModel.js"></script>
@@ -44,43 +47,41 @@
 		<script language="JavaScript">
 			function init() {
 
-				/* 1) Create a new SnowflakeLayout.
-				 * 
+				/* 
 				 * If you're going to place the graph in an HTML Element, other
 				 * the <body>, remember that it must have a known size and
 				 * position (via element.offsetWidth, element.offsetHeight,
 				 * element.offsetTop, element.offsetLeft).
 				 */
 				var layout = new ForceDirectedLayout( document.body, true );
-				
+
 				layout.config._default = {
-					model: function( dataNode ) {
-						return {
-							mass: .5
-						}
-					},
-					view: function( dataNode, modelNode ) {
-						if ( layout.svg ) {
-							var nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-							nodeElement.setAttribute('stroke', '#888888');
-							nodeElement.setAttribute('stroke-width', '.25px');
-							nodeElement.setAttribute('fill', dataNode.color);
-							nodeElement.setAttribute('r', 10 + 'px');
-							nodeElement.onmousedown =  new EventHandler( layout, layout.handleMouseDownEvent, modelNode.id )
-							return nodeElement;
-						} else {
-							var nodeElement = document.createElement( 'div' );
-							nodeElement.style.position = "absolute";
-							nodeElement.style.width = "20px";
-							nodeElement.style.height = "20px";
-							
-							var color = dataNode.color.replace( "#", "" );
-							nodeElement.style.backgroundImage = "url(http://kylescholz.com/cgi-bin/bubble.pl?title=&r=20&pt=8&b=888888&c=" + color + ")";
-							nodeElement.innerHTML = '<img width="1" height="1">';
-							nodeElement.onmousedown =  new EventHandler( layout, layout.handleMouseDownEvent, modelNode.id )
-							return nodeElement;
-						}
-					}
+				    model: function (dataNode) {
+				        return {
+				            mass: .5
+				        }
+				    },
+				    view: function (dataNode, particle) {
+
+				        var element = $("<div><div></div></div>").css("position", "absolute");
+				        var inner = element.find("div");
+
+				        element.width(1);
+				        element.height(1);
+				        inner.width(particle.width);
+				        inner.height(particle.height);
+				        inner.css("left", -particle.width / 2);
+				        inner.css("top", -particle.height / 2);
+				        inner.css("background", "blue");
+
+				        var result = element[0];
+
+//				        var color = dataNode.color.replace("#", "");
+//				        nodeElement.style.backgroundImage = "url(http://kylescholz.com/cgi-bin/bubble.pl?title=&r=20&pt=8&b=888888&c=" + color + ")";
+//				        nodeElement.innerHTML = '<img width="1" height="1">';
+				        result.onmousedown = new EventHandler(layout, layout.handleMouseDownEvent, particle.id)
+				        return result;
+				    }
 				}
 
         		layout.forces.spring._default = function( nodeA, nodeB, isParentChild ) {
