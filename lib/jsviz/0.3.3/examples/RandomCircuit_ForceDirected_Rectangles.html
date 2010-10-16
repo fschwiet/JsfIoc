@@ -26,8 +26,8 @@
 		<script language="JavaScript" src="../physics/Magnet.js"></script>
 		<script language="JavaScript" src="../physics/Spring.js"></script>
 		<script language="JavaScript" src="../physics/Particle.js"></script>
-		<script language="JavaScript" src="../physics/PreferredDistanceCalculator.js"></script>
 		<script language="JavaScript" src="../physics/RectangleParticle.js"></script>
+		<script language="JavaScript" src="../physics/PreferredDistanceCalculator.js"></script>
 		<script language="JavaScript" src="../physics/RungeKuttaIntegrator.js"></script>
 		
 		<script language="JavaScript" src="../layout/graph/ForceDirectedLayout.js"></script>
@@ -87,7 +87,7 @@
 					return {
 						springConstant: 0.2,
 						dampingConstant: 0.2,
-						restLength: 30
+						restLength: 10
 					}
 				}
 				
@@ -129,8 +129,8 @@
 				var nodes = [];
 				for ( var i=0; i<8; i++ ) {
 					var node = new DataGraphNode();
-					node.color= (Math.random()>.5) ? "#8888bb" : "#bb8888";
-					node.particle = new Particle(.5, 0, 0);
+					node.color = (Math.random() > .5) ? "#8888bb" : "#bb8888";
+					node.particle = new RectangleParticle(.5, 0, 0).SetDimensions(100, 20);
 					layout.newDataGraphNode( node );
 
 					if ( nodes.length>0 ) {
