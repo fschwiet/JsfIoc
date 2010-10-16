@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>JSViz Snowflake Layout: Modeling XML Data</title>
+
+		<!--	
+			Licensed under the Apache License, Version 2.0 (the "License");
+			you may not use this file except in compliance with the License.
+ 			You may obtain a copy of the License at
+ 
+				http://www.apache.org/licenses/LICENSE-2.0
+
+ 			Unless required by applicable law or agreed to in writing, software
+ 			distributed under the License is distributed on an "AS IS" BASIS,
+ 			WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ 			See the License for the specific language governing permissions and
+ 			limitations under the License.
+
+ 			Author: Kyle Scholz      http://kylescholz.com/
+ 			Copyright: 2006-2007
+ 		-->
+		
+		<!-- JSViz Libraries -->
+		<script language="JavaScript" src="../geometry/SnowflakeGraphModel.js"></script>
+		<script language="JavaScript" src="../layout/graph/SnowflakeLayout.js"></script>
+		<script language="JavaScript" src="../layout/view/HTMLGraphView.js"></script>
+		<script language="JavaScript" src="../layout/view/SVGGraphView.js"></script>
+
+		<script language="JavaScript" src="../util/Timer.js"></script>
+		<script language="JavaScript" src="../util/EventHandler.js"></script>
+
+		<script language="JavaScript" src="../io/DataGraph.js"></script>
+		<script language="JavaScript" src="../io/HTTP.js"></script>
+		<script language="JavaScript" src="../io/XMLTreeLoader.js"></script>
+
+		<script language="JavaScript">
+			function init() {
+
+				var TIMEDBUILD = window.location.href.indexOf("TIMEDBUILD")>0 ? true : false;
+
+				/* 1) Create a new SnowflakeLayout.
+				 * 
+				 * If you're going to place the graph in an HTML Element, other
+				 * than the <body>, remember that it must have a known size and
+				 * position (via element.offsetWidth, element.offsetHeight,
+				 * element.offsetTop, element.offsetLeft).
+				 */
+				var layout = new SnowflakeLayout( document.getElementById("graph"), true );
+				layout.view.skewBase=300;
+				layout.setSize();
+
+				/* 2) Configure the layout.
+				 * 
+				 * This configuration defines how we handle the addition of
+				 * different kinds of nodes to the graph. For each "type" of
+				 * node, we tell the layout how to create a "model" and "view"
+				 * of the new node.
+				 */
+				
+				layout.config._default = {
+
+				/* The "model" defines the underlying structure of our graph.
+				 * For a SnowflakeModel, we need to define the following for
+				 * each node:
+				 * 
+				 * - childRadius: the edge length to this node's children
+				 * - fanAngle: the maximum angle in which child nodes will be
+				 *   layed out
+				 * - rootAngle: the base angle of the graph at the origin (this
+				 *   is automatically determined for all child nodes)
+				 * 
+				 * These parameters determine how this new node will interact
+				 * with other nodes in our graph. The "model" attribute of a
+				 * class in our configuration must return a JavaScript Object
+				 * containing these values.
+				 */
+
+					model: function( dataNode ) {
+						return {
+							childRadius: 40,
+							fanAngle: dataNode.root ? 360: 100,
+							rootAngle: 0
+						}
+					},
+
+				/* The "view" defines what the nodes in our graph look like.
+				 * The "view" attribute of a class must return a DOM element -- 
+				 * JSViz supports most HTML and SVG elements. You can control
+				 * the appearence and behavior of view elements just like any
+				 * DOM element: 
+				 * 
+				 * CSS: Point to a CSS style sheet using the "className"
+				 * attribute of the DOM element.
+				 * 
+				 * Contents: Indicate the node's contents, in HTML, using the
+				 * "appendChild" function or by setting DOM element's innerHTML.
+				 * 
+				 * Behavior: Add an event handler using the EventHandler factory
+				 * class. For example: 
+				 * 
+				 * nodeElement.onclick = new EventHandler( _caller, _handler, arg0, arg1... );
+				 * 
+				 * where _caller is an object instance that _handler may refer
+				 * to as "this" (use "window" if the function is in the global
+				 * scope), _handler is the function to be executed, and any
+				 * additional arguments are passed as parameters to _handler. 
+				 */
+
+					view: function( dataNode, modelNode ) {
+						if ( layout.svg ) {
+							var nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+							nodeElement.setAttribute('stroke', '#888888');
+							nodeElement.setAttribute('stroke-width', '.25px');
+							nodeElement.setAttribute('fill', dataNode.color);
+							nodeElement.setAttribute('r', 6 + 'px');
+							nodeElement.onmousedown =  new EventHandler( layout, layout.handleMouseDownEvent, modelNode.id )
+							return nodeElement;
+						} else {
+							var nodeElement = document.createElement( 'div' );
+							nodeElement.style.position = "absolute";
+							nodeElement.style.width = "12px";
+							nodeElement.style.height = "12px";
+							
+							var color = dataNode.color.replace( "#", "" );
+							nodeElement.style.backgroundImage = "url(http://kylescholz.com/cgi-bin/bubble.pl?title=&r=12&pt=8&b=888888&c=" + color + ")";
+							nodeElement.innerHTML = '<img width="1" height="1">';
+							nodeElement.onmousedown =  new EventHandler( layout, layout.handleMouseDownEvent, modelNode.id )
+							return nodeElement;
+						}
+					}
+				}
+				
+				/* 3) Override the default edge properties builder.
+				 * 
+				 * This is optional of course, but we'll create a custom edge
+				 * builder that draws edges in the color of the parent node.
+				 * 
+				 * @return Object
+				 */ 
+				layout.viewEdgeBuilder = function( dataNodeSrc, dataNodeDest ) {
+					if ( this.svg ) {
+						return {
+							'stroke': dataNodeSrc.color,
+							'stroke-width': '2px',
+							'stroke-dasharray': '2,4'
+						}
+					} else {
+						return {
+							'pixelColor': dataNodeSrc.color,
+							'pixelWidth': '2px',
+							'pixelHeight': '2px',
+							'pixels': 8
+						}
+					}
+				}
+
+				/* 4) Make an loader to process the contents of our file.
+				 * 
+				 * Here, we're using the XMLTreeLoader. 
+				 */
+				var loader = new XMLTreeLoader( layout.dataGraph );
+				loader.load( "treedata1.xml" );
+
+				/* 5a) Control the addition of nodes and edges with a timer.
+				 * 
+				 * This enables the graph to start organizng as data is loaded.
+				 * Use a larger tick time for smoother animation, but slower
+				 * build time.
+				 */
+				if ( TIMEDBUILD ) {
+					var buildTimer = new Timer( 0 );
+					buildTimer.subscribe( layout );
+					buildTimer.start();
+
+				/* 5b) Or ... Add all nodes at once.
+				 * 
+				 * Use a timer and simple build class to load all nodes when
+				 * they are available then stop polling for new nodes.
+				 */
+				} else {
+					var SimpleBuilder = function() {
+						this.started = false;
+						this.update = function() {
+							var d = layout.dequeueNode();
+							if ( !this.started && d ) {
+								this.started=true;
+								while( layout.dequeueNode() ) {};
+							}
+							if ( this.started && !d ) { return false; }
+						}
+					}				
+					var buildTimer = new Timer(0);
+					buildTimer.subscribe( new SimpleBuilder );
+					buildTimer.start();
+				}
+			}
+		</script>
+		
+		<style type="text/css">
+			body { margin: 0; padding: 0; }
+		</style>
+	</head>
+	<body onload="init()" style="background-color:#ffff66;">
+		<div id="debug" style="position:absolute"></div>
+		<br><br>
+		<center>
+			<div id="graph" style="position:relative;overflow:hidden;width:500px;height:400px;background-color:#ffffff;border:2px solid #bbbb22"></div>			
+		</center>
+	</body>
+</html>

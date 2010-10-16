@@ -1,0 +1,80 @@
+<root root="true" fixed="true" color="#cccccc">
+	<node color="#90EE90">
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa">
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6">
+				<node color="#ff8888">
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+				</node>
+			</node>
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+		</node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa">
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+		</node>
+	</node>
+	<node color="#90EE90">
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa">
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6">
+				<node color="#ff8888">
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+				</node>
+				<node color="#ff8888"></node>
+				<node color="#ff8888"></node>
+			</node>
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+		</node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa">
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+		</node>
+	</node>
+	<node color="#90EE90"></node>
+	<node color="#90EE90">
+		<node color="#aaaaaa">
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6"></node>
+			<node color="#ADD8E6">
+				<node color="#ff8888"></node>
+				<node color="#ff8888"></node>
+				<node color="#ff8888">
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+					<node color="#ffaa44"></node>
+				</node>
+				<node color="#ff8888"></node>
+				<node color="#ff8888"></node>
+			</node>
+			<node color="#ADD8E6"></node>
+		</node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa"></node>
+		<node color="#aaaaaa"></node>
+	</node>
+</root>

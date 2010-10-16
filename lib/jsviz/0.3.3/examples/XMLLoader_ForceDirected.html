@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>JSViz Force Directed Layout: Modeling XML Data</title>
+
+		<!--	
+			Licensed under the Apache License, Version 2.0 (the "License");
+			you may not use this file except in compliance with the License.
+ 			You may obtain a copy of the License at
+ 
+				http://www.apache.org/licenses/LICENSE-2.0
+
+ 			Unless required by applicable law or agreed to in writing, software
+ 			distributed under the License is distributed on an "AS IS" BASIS,
+ 			WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ 			See the License for the specific language governing permissions and
+ 			limitations under the License.
+
+ 			Author: Kyle Scholz      http://kylescholz.com/
+ 			Copyright: 2006-2007
+ 		-->
+		
+		<!-- JSViz Libraries -->
+		<script language="JavaScript" src="../physics/ParticleModel.js"></script>
+		<script language="JavaScript" src="../physics/Magnet.js"></script>
+		<script language="JavaScript" src="../physics/Spring.js"></script>
+		<script language="JavaScript" src="../physics/Particle.js"></script>
+		<script language="JavaScript" src="../physics/RungeKuttaIntegrator.js"></script>
+		
+		<script language="JavaScript" src="../layout/graph/ForceDirectedLayout.js"></script>
+		<script language="JavaScript" src="../layout/view/HTMLGraphView.js"></script>
+		<script language="JavaScript" src="../layout/view/SVGGraphView.js"></script>
+
+		<script language="JavaScript" src="../util/Timer.js"></script>
+		<script language="JavaScript" src="../util/EventHandler.js"></script>
+
+		<script language="JavaScript" src="../io/DataGraph.js"></script>
+		<script language="JavaScript" src="../io/HTTP.js"></script>
+		<script language="JavaScript" src="../io/XMLTreeLoader.js"></script>
+
+		<script language="JavaScript">
+			function init() {
+
+				/* 1) Create a new SnowflakeLayout.
+				 * 
+				 * If you're going to place the graph in an HTML Element, other
+				 * the <body>, remember that it must have a known size and
+				 * position (via element.offsetWidth, element.offsetHeight,
+				 * element.offsetTop, element.offsetLeft).
+				 */
+				var layout = new ForceDirectedLayout( document.body, true );
+				layout.view.skewBase=575;
+				layout.setSize();
+
+				/* 2) Configure the layout.
+				 * 
+				 * This configuration defines how we handle the addition of
+				 * different kinds of nodes to the graph. For each "type" of
+				 * node, we tell the layout how to create a "model" and "view"
+				 * of the new node.
+				 */
+				layout.config._default = {
+					
+				/* The "model" defines the underlying structure of our graph.
+				 * For a SnowflakeModel, we need to define the following for
+				 * each node:
+				 * 
+				 * - childRadius: the edge length to this node's children
+				 * - fanAngle: the maximum angle in which child nodes will be
+				 *   layed out
+				 * - rootAngle: the base angle of the graph at the origin (this
+				 *   is automatically determined for all child nodes)
+				 * 
+				 * These parameters determine how this new node will interact
+				 * with other nodes in our graph. The "model" attribute of a
+				 * class in our configuration must return a JavaScript Object
+				 * containing these values.
+				 */
+				
+					model: function( dataNode ) {
+						return {
+							mass: .5
+						}
+					},
+					
+				/* The "view" defines what the nodes in our graph look like.
+				 * The "view" attribute of a class must return a DOM element -- 
+				 * JSViz supports most HTML and SVG elements. You can control
+				 * the appearence and behavior of view elements just like any
+				 * DOM element: 
+				 * 
+				 * CSS: Point to a CSS style sheet using the "className"
+				 * attribute of the DOM element.
+				 * 
+				 * Contents: Indicate the node's contents, in HTML, using the
+				 * "appendChild" function or by setting DOM element's innerHTML.
+				 * 
+				 * Behavior: Add an event handler using the EventHandler factory
+				 * class. For example: 
+				 * 
+				 * nodeElement.onclick = new EventHandler( _caller, _handler, arg0, arg1... );
+				 * 
+				 * where _caller is an object instance that _handler may refer
+				 * to as "this" (use "window" if the function is in the global
+				 * scope), _handler is the function to be executed, and any
+				 * additional arguments are passed as parameters to _handler. 
+				 */
+
+					view: function( dataNode, modelNode ) {
+						if ( layout.svg ) {
+							var nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+							nodeElement.setAttribute('stroke', '#888888');
+							nodeElement.setAttribute('stroke-width', '.25px');
+							nodeElement.setAttribute('fill', dataNode.color);
+							nodeElement.setAttribute('r', 6 + 'px');
+							nodeElement.onmousedown =  new EventHandler( layout, layout.handleMouseDownEvent, modelNode.id )
+							return nodeElement;
+						} else {
+							var nodeElement = document.createElement( 'div' );
+							nodeElement.style.position = "absolute";
+							nodeElement.style.width = "12px";
+							nodeElement.style.height = "12px";
+							
+							var color = dataNode.color.replace( "#", "" );
+							nodeElement.style.backgroundImage = "url(http://kylescholz.com/cgi-bin/bubble.pl?title=&r=12&pt=8&b=888888&c=" + color + ")";
+							nodeElement.innerHTML = '<img width="1" height="1">';
+							nodeElement.onmousedown =  new EventHandler( layout, layout.handleMouseDownEvent, modelNode.id )
+							return nodeElement;
+						}
+					}
+				}
+
+				/* Force Directed Graphs are a simulation of different kinds of
+				 * forces between particles. In JSViz, a graph edge is typically
+				 * represented as an attractive "spring" force connecting
+				 * two nodes.
+				 * 
+				 * It's often the case that parent-child relationships are
+				 * represented with stricter force rules. This can help a graph
+				 * organize with fewer overlapping edges.
+				 */
+				
+        		layout.forces.spring._default = function( nodeA, nodeB, isParentChild ) {
+					if (isParentChild) {
+						return {
+							springConstant: 0.5,
+							dampingConstant: 0.2,
+							restLength: 20
+						}
+					} else {
+						return {
+							springConstant: 0.2,
+							dampingConstant: 0.2,
+							restLength: 20
+						}
+					}
+				}
+				
+				/* Note that there is no need to include the above function in
+				 * your application if you're satisfied with the default
+				 * behavior.
+				 * 
+				 * You may wish to represent different edge weights in your
+				 * graph with different edge lengths. A number of factors
+				 * contribute to the actual edge length, but you can incluence
+				 * the graph by applying different spring confiugrations between
+				 * different kinds of edges.
+				 * 
+				 * For example, to apply a looser relationship beween node types
+				 * 'A' and 'B', I can create a custom spring with greater
+				 * elasticity:
+				 */
+
+				layout.forces.spring['A'] = {};
+        		layout.forces.spring['A']['B'] = function( nodeA, nodeB, isParentChild ) {
+					return {
+						springConstant: 0.4,
+						dampingConstant: 0.2,
+						restLength: 20
+					}
+				}
+				/* Note that these configurations are directed: The above
+				 * configuration would apply to an edge from a node of type
+				 * 'A' to a node of type 'B', but not from a 'B' to an 'A' ...
+				 * use a additional configuration from that. 
+				 */
+				
+				/* The other forces in our graph repel each node from another.
+				 * This function should be the same for all node types.
+				 */
+        		layout.forces.magnet = function() {
+					return {
+						magnetConstant: -2000,
+						minimumDistance: 10
+					}
+				}
+				
+				/* You don't need to include the above function in your
+				 * application if you are satisfied with the default
+				 * implementation.
+				 */
+				
+				/* 3) Override the default edge properties builder.
+				 * 
+				 * @return DOMElement
+				 */ 
+				layout.viewEdgeBuilder = function( dataNodeSrc, dataNodeDest ) {
+					if ( this.svg ) {
+						return {
+							'stroke': dataNodeSrc.color,
+							'stroke-width': '2px',
+							'stroke-dasharray': '2,4'
+						}
+					} else {
+						return {
+							'pixelColor': dataNodeSrc.color,
+							'pixelWidth': '2px',
+							'pixelHeight': '2px',
+							'pixels': 5
+						}
+					}
+				}
+
+				/* 4) Make an loader to process the contents of our file.
+				 * 
+				 * Here, we're using the XML Loader. 
+				 */
+				var loader = new XMLTreeLoader( layout.dataGraph );
+				loader.load( "treedata1.xml" );
+
+				/* 5) Control the addition of nodes and edges with a timer.
+				 * 
+				 * This enables the graph to start organizng as data is loaded.
+				 * Use a larger tick time for smoother animation, but slower
+				 * build time.
+				 */
+				var buildTimer = new Timer( 150 );
+				buildTimer.subscribe( layout );
+				buildTimer.start();
+			}
+		</script>
+		
+		<style type="text/css">
+			body { margin: 0; padding: 0; }
+		</style>
+	</head>
+	<body onload="init()"><div id="debug" style="position:absolute"></div></body>
+</html>
