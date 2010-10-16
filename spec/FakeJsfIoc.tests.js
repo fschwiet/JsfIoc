@@ -97,8 +97,15 @@ describe("FakeJsfIoc", function () {
             }
 
             expect(function () {
-                var behavior = sut.LoadTestDouble(Unregistered_service, "Run");
+                var behavior = sut.LoadTestDouble(Unregistered_service);
             }).toThrow("FakeJsfIoc could not find service: " + Unregistered_service.toString());
+        });
+
+        it("useful error message if you specify a non-existing service", function () {
+
+            expect(function () {
+                var behavior = sut.LoadTestDouble("Unregistered_service");
+            }).toThrow("FakeJsfIoc could not find service: Unregistered_service");
         });
     });
 
@@ -206,6 +213,29 @@ describe("FakeJsfIoc", function () {
             expect(function () {
                 result._notifyInitialize(1, 2, 3);
             }).toThrow("Unexpected call to function Source._notifyInitialize() with 3 parameters");
+        });
+    });
+
+    describe("Can overload any instance", function() {
+
+        it("RegisterInstance can set a service", function() {
+
+            var expectedFoo = some.Object();
+
+            sut.RegisterInstance("_foo", expectedFoo);
+
+            var bar = sut.Load(Bar);
+
+            expect(bar._foo).toEqual(expectedFoo);
+        });
+
+        it("RegisterInstance fails if the service is already set", function() {
+
+            sut.Load(Bar);
+
+            expect(function() {
+                sut.RegisterInstance("_foo", {});
+            }).toThrow("Service _foo already has a test definition");
         });
     });
 });
