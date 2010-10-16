@@ -17,9 +17,9 @@ FakeJsfIoc.StubBehavior = function(dependencyName, functionName) {
 FakeJsfIoc.MockBehavior = function(dependencyName, functionName) { 
     
     return function() {
-        throw "Unexpected call to " 
+        throw new Error("Unexpected call to " 
             + dependencyName + "." + functionName + "()"
-            + " with " + arguments.length + " parameters";
+            + " with " + arguments.length + " parameters");
     };
 };
 
@@ -85,7 +85,13 @@ FakeJsfIoc.prototype = {
         var result = this._ioc._singletons[name];
 
         if (!result) {
-            result = new (this._ioc._bindings[name].service);
+            var binding = this._ioc._bindings[name];
+
+            if (binding) {
+                result = new (this._ioc._bindings[name].service);
+            } else {
+                throw "FakeJsfIoc could not find service: " + name;
+            }
         }
 
         result = this.CloneAsTestDouble(result, name);
@@ -112,6 +118,14 @@ FakeJsfIoc.prototype = {
         }
 
     },
+    RegisterInstance: function (name, instance) {
+
+        if (this._preloadedDependencies[name]) {
+            throw new Error("Service " + name + " already has a test definition");
+        }
+
+        this._preloadedDependencies[name] = instance;
+    },
     GetBindingByClass: function (service) {
         var binding = null;
 
@@ -129,7 +143,7 @@ FakeJsfIoc.prototype = {
 
         if (binding == null) {
 
-            throw "FakeJsfIoc could not find service: " + service;
+            throw new Error("FakeJsfIoc could not find service: " + service);
         };
 
         return binding;
