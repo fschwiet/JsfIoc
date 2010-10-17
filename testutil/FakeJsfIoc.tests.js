@@ -212,7 +212,7 @@ describe("FakeJsfIoc", function () {
 
             expect(function () {
                 result._notifyInitialize(1, 2, 3);
-            }).toThrow("Unexpected call to function Source._notifyInitialize() with 3 parameters");
+            }).toThrow("Unexpected call to Source._notifyInitialize() with 3 parameters");
         });
     });
 

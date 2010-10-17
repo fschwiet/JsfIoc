@@ -169,38 +169,30 @@ FakeJsfIoc.prototype = {
 
         var result = new binding.service;
 
-        if (binding.requires) {
+        dependencyLoadingLoop:
+        for (var i = 0; i < binding.requires.length; i++) {
 
-            dependencyLoadingLoop:
-            for (var i = 0; i < binding.requires.length; i++) {
+            var dependency = binding.requires[i];
 
-                var dependency = binding.requires[i];
-
-                for (var includeIndex = 0; includeIndex < this._includedServices.length; includeIndex++) {
-                    if (dependency == this._includedServices[includeIndex]) {
-                        result[dependency] = this.Load(this._ioc._bindings[dependency].service);
-                        continue dependencyLoadingLoop;
-                    }
+            for (var includeIndex = 0; includeIndex < this._includedServices.length; includeIndex++) {
+                if (dependency == this._includedServices[includeIndex]) {
+                    result[dependency] = this.Load(this._ioc._bindings[dependency].service);
+                    continue dependencyLoadingLoop;
                 }
-
-                result[dependency] = this.LoadTestDouble(dependency);
             }
+
+            result[dependency] = this.LoadTestDouble(dependency);
         }
 
-        if (binding.parameters) for (var i = 0; i < binding.parameters.length; i++) {
+        for (var i = 0; i < binding.parameters.length; i++) {
             var parameter = binding.parameters[i];
             result[parameter.name] = arguments[1 + i];
         }
 
-        if (binding.eventSource) for (var i = 0; i < binding.eventSource.length; i++) {
-
-            var serviceName = binding.service.toString();
-
-            if (serviceName.indexOf("(") > -1)
-                serviceName = serviceName.slice(0, serviceName.indexOf("("));
+        for (var i = 0; i < binding.eventSource.length; i++) {
 
             result["_notify" + binding.eventSource[i]] =
-                this.TestDoublePolicy(serviceName, "_notify" + binding.eventSource[i]);
+                this.TestDoublePolicy(binding.GetFriendlyName(), "_notify" + binding.eventSource[i]);
         }
 
         return result;

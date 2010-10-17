@@ -1,3 +1,28 @@
+// Binding.js
+
+
+function Binding() {
+    this.requires = [];
+    this.parameters = [];
+    this.singleton = false;
+    this.eventSource = [];
+    this.eventListener = [];
+}
+
+Binding.prototype = {
+    constructor: Binding,
+
+    GetFriendlyName: function () {
+        var result = this.service.toString();
+
+        if (result.indexOf("(") > -1)
+            result = result.slice(0, result.indexOf("("));
+        if (result.indexOf("function ") == 0)
+            result = result.slice("function ".length);
+
+        return result;
+    }
+}
 // JsfIoc.js
 /*********************************************************************
 
@@ -41,19 +66,23 @@ JsfIoc.prototype = {
             throw "Register must be called with function parameter 'service'";
         };
 
-        if (parameters.parameters) {
-            for (var i = 0; i < parameters.parameters.length; i++) {
-                if (typeof parameters.parameters[i] == "string") {
-                    var name = parameters.parameters[i];
-                    parameters.parameters[i] = {
-                        name: name,
-                        validator: function () { return true; }
-                    };
-                }
+        var binding = new Binding();
+        for (var key in parameters) {
+            if (parameters.hasOwnProperty(key))
+                binding[key] = parameters[key];
+        }
+
+        for (var i = 0; i < binding.parameters.length; i++) {
+            if (typeof binding.parameters[i] == "string") {
+                var name = binding.parameters[i];
+                binding.parameters[i] = {
+                    name: name,
+                    validator: function () { return true; }
+                };
             }
         }
 
-        this._bindings[parameters.name] = parameters;
+        this._bindings[binding.name] = binding;
     },
 
     RegisterInstance: function (name, instance) {
@@ -72,11 +101,9 @@ JsfIoc.prototype = {
 
         result = new binding.service;
 
-        if (binding.requires) {
-            for (var i = 0; i < binding.requires.length; i++) {
-                var dependency = binding.requires[i];
-                result[dependency] = this.Load(dependency);
-            }
+        for (var i = 0; i < binding.requires.length; i++) {
+            var dependency = binding.requires[i];
+            result[dependency] = this.Load(dependency);
         }
 
         if (binding.boundParameters) {
@@ -85,22 +112,20 @@ JsfIoc.prototype = {
                 result[parameter.name] = binding.boundParameters[parameter.name];
             }
         }
-        else if (binding.parameters) {
+        else {
             for (var i = 0; i < binding.parameters.length; i++) {
                 this._SetParameterToObject(binding, binding.parameters[i], result, arguments[1 + i], i);
             }
         }
 
-        if (binding.eventSource) {
-            for (var i = 0; i < binding.eventSource.length; i++) {
+        for (var i = 0; i < binding.eventSource.length; i++) {
 
-                (function (event, that) {
+            (function (event, that) {
 
-                    result["_notify" + event] = function () {
-                        that.NotifyEvent(event, arguments);
-                    };
-                })(binding.eventSource[i], this);
-            }
+                result["_notify" + event] = function () {
+                    that.NotifyEvent(event, arguments);
+                };
+            })(binding.eventSource[i], this);
         }
 
         if (binding.singleton) {
@@ -115,10 +140,8 @@ JsfIoc.prototype = {
 
         var boundParameters = {};
 
-        if (binding.parameters) {
-            for (var i = 0; i < binding.parameters.length; i++) {
-                this._SetParameterToObject(binding, binding.parameters[i], boundParameters, arguments[1 + i], i);
-            }
+        for (var i = 0; i < binding.parameters.length; i++) {
+            this._SetParameterToObject(binding, binding.parameters[i], boundParameters, arguments[1 + i], i);
         }
 
         binding.boundParameters = boundParameters;
