@@ -69,6 +69,8 @@ describe("dependency graphing", function () {
         });
 
         sut = new DependencyGrapher(ioc);
+
+        window.globalDependencyGrapher = sut;  // making this global ... hacky test
     });
 
     it("GetRegisteredServices", function () {
@@ -143,11 +145,7 @@ FooBar\n\
 ';
 
         var result = sut.SimpleGraph();
-                
-        var pre = $("<pre></pre>");
-        pre.text(result);
-        $("body").append(pre);
-        
+
         expect(result).toEqual(expected);
     });
 
