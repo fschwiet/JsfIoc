@@ -7,6 +7,7 @@ describe("BindingView", function () {
 
 
     function get_view_for_foo(serviceDefinition) {
+
         var ioc = new JsfIoc();
 
         ioc.Register(serviceDefinition);
@@ -51,7 +52,7 @@ describe("BindingView", function () {
         });
     });
 
-    describe("can draw a instance", function () {
+    describe("can draw an instance registered as a service", function () {
 
         it("includes the name", function () {
 
@@ -67,7 +68,7 @@ describe("BindingView", function () {
         });
     });
 
-    it("the result has a height and width of zero", function () {
+    it("the result has a fixed height and width of one", function () {
 
         var view = get_view_for_foo({
             service: Foo,
@@ -78,8 +79,7 @@ describe("BindingView", function () {
         expect(view.width()).toEqual(1);
     });
 
-
-    it("the result has an inner div, relative position so the container is centered", function () {
+    it("the result has an inner div, relative position so the container is centered around its container", function () {
 
         var view = get_view_for_foo({
             service: Foo,
@@ -101,4 +101,18 @@ describe("BindingView", function () {
         expect(innerDiv.css("top")).toEqual(-innerHeight / 2 + "px");
     });
 
+    it("bindingview_height() / bindingview_width() allow the caller to check its the necessary dimensions", function () {
+
+        var view = get_view_for_foo({
+            service: Foo,
+            name: "_foo"
+        });
+
+        var innerDiv = view.children("div");
+        var innerHeight = innerDiv.height();
+        var innerWidth = innerDiv.width();
+
+        expect(view.bindingView_height()).toEqual(innerHeight);
+        expect(view.bindingView_width()).toEqual(innerWidth);
+    });
 });

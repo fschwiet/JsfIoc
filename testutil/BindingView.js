@@ -56,6 +56,14 @@ BindingView.prototype = {
         inner.width(originalWidth);
         inner.height(originalHeight);
 
+        result.bindingView_width = function () {
+            return inner.width();
+        };
+
+        result.bindingView_height= function () {
+            return inner.height();
+        };
+
         return result;
     }
 }

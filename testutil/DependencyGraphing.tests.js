@@ -56,8 +56,7 @@ describe("dependency graphing", function () {
         ioc.Register({
             name: "BarBaz",
             service: BarBaz,
-            requires: ["Bar", "Baz"],
-            eventSource: ["Start", "Stop", "Rewind", "Record", "Eject"]
+            requires: ["Bar", "Baz"]
         });
 
         ioc.Register({
@@ -68,7 +67,7 @@ describe("dependency graphing", function () {
 
         sut = new DependencyGrapher(ioc);
 
-        window.globalDependencyGrapher = sut;  // making this global ... hacky test
+        window.sampleIoc = ioc;
     });
 
     it("GetRegisteredServices", function () {

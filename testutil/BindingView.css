@@ -1,0 +1,21 @@
+﻿
+div.binding
+{
+    padding: 10px;
+    color: #DCDCCC;
+    background: #3F3F3F;
+}
+
+span.eventListener
+{
+    font-size: small;
+    color: #709080;
+    background: #313C36;
+}
+
+span.eventSource
+{
+    font-size: small;
+    color: #ECBCBC;
+    background: #413C3C;
+}

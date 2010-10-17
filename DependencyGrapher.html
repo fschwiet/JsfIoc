@@ -2,169 +2,157 @@
   "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <title>Jasmine Test Runner</title>
-  <link rel="stylesheet" type="text/css" href="lib/jasmine-0.11.1/jasmine.css">
-  <script type="text/javascript" src="lib/jasmine-0.11.1/jasmine.js"></script>
-  <script type="text/javascript" src="lib/jasmine-0.11.1/jasmine-html.js"></script>
-  <script type="text/javascript" src="lib/jquery/jquery-1.4.2.js"></script>
-  <script type="text/javascript" src="lib/json2/json2.js"></script>
-
-  <script type="text/javascript" src="src/Binding.js"></script>
-  <script type="text/javascript" src="src/JsfIoc.js"></script>
-  <script type="text/javascript" src="src/ParameterTypes.js"></script>
-  <script type="text/javascript" src="testutil/BindingView.js"></script>
-  <script type="text/javascript" src="testutil/DependencyGraphing.js"></script>
-  <script type="text/javascript" src="testutil/DependencyGraphing.tests.js"></script>
-  <script type="text/javascript" src="testutil/FakeJsfIoc.js"></script>
-  <script type="text/javascript" src="testutil/Some.js"></script>
-
-
-
-  <script type="text/javascript" src="lib/jsviz/0.3.3/physics/Particle.js"></script>
-  <script type="text/javascript" src="lib/jsviz/0.3.3/physics/PreferredDistanceCalculator.js"></script>
-  <script type="text/javascript" src="lib/jsviz/0.3.3/physics/PreferredDistanceCalculator.tests.js"></script>
-  <script type="text/javascript" src="lib/jsviz/0.3.3/physics/RectangleParticle.js"></script>
-  <script type="text/javascript" src="lib/jsviz/0.3.3/physics/RectangleParticle.tests.js"></script>
-
-
-
+    <title>Jasmine Test Runner</title>
+    <link rel="stylesheet" type="text/css" href="lib/jasmine-0.11.1/jasmine.css" />
+    <script type="text/javascript" src="lib/jasmine-0.11.1/jasmine.js"></script>
+    <script type="text/javascript" src="lib/jasmine-0.11.1/jasmine-html.js"></script>
+    <script type="text/javascript" src="lib/jquery/jquery-1.4.2.js"></script>
+    <script type="text/javascript" src="lib/json2/json2.js"></script>
+    <script type="text/javascript" src="src/Binding.js"></script>
+    <script type="text/javascript" src="src/JsfIoc.js"></script>
+    <script type="text/javascript" src="src/ParameterTypes.js"></script>
+    <script type="text/javascript" src="testutil/BindingView.js"></script>
+    <link rel="Stylesheet" type="text/css" href="testutil/BindingView.css" />
+    <script type="text/javascript" src="testutil/BindingView.js"></script>
+    <script type="text/javascript" src="testutil/DependencyGraphing.js"></script>
+    <script type="text/javascript" src="testutil/DependencyGraphing.tests.js"></script>
+    <script type="text/javascript" src="testutil/FakeJsfIoc.js"></script>
+    <script type="text/javascript" src="testutil/Some.js"></script>
+    <script type="text/javascript" src="lib/jsviz/0.3.3/physics/Particle.js"></script>
+    <script type="text/javascript" src="lib/jsviz/0.3.3/physics/PreferredDistanceCalculator.js"></script>
+    <script type="text/javascript" src="lib/jsviz/0.3.3/physics/PreferredDistanceCalculator.tests.js"></script>
+    <script type="text/javascript" src="lib/jsviz/0.3.3/physics/RectangleParticle.js"></script>
+    <script type="text/javascript" src="lib/jsviz/0.3.3/physics/RectangleParticle.tests.js"></script>
 </head>
 <body>
     <script type="text/javascript">
-      jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
-      jasmine.getEnv().execute();
+        jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+        jasmine.getEnv().execute();
     </script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/physics/ParticleModel.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/physics/Magnet.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/physics/Spring.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/physics/Particle.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/physics/RectangleParticle.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/physics/PreferredDistanceCalculator.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/physics/RungeKuttaIntegrator.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/layout/graph/ForceDirectedLayout.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/layout/view/HTMLGraphView.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/layout/view/SVGGraphView.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/util/Timer.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/util/EventHandler.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/io/DataGraph.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/io/HTTP.js"></script>
+    <script language="JavaScript" src="lib/jsviz/0.3.3/io/XMLTreeLoader.js"></script>
+    <script language="JavaScript">
+
+        function GetSampleLayout() {
+
+            /* 
+            * If you're going to place the graph in an HTML Element, other
+            * the <body>, remember that it must have a known size and
+            * position (via element.offsetWidth, element.offsetHeight,
+            * element.offsetTop, element.offsetLeft).
+            */
+            var layout = new ForceDirectedLayout(document.body, true);
+
+            layout.config._default = {
+                model: function (dataNode) {
+                    return {
+                        mass: .5
+                    }
+                },
+                view: function (dataNode, particle) {
+
+                    var result = dataNode.domElement;
+
+                    //				        var color = dataNode.color.replace("#", "");
+                    //				        nodeElement.style.backgroundImage = "url(http://kylescholz.com/cgi-bin/bubble.pl?title=&r=20&pt=8&b=888888&c=" + color + ")";
+                    //				        nodeElement.innerHTML = '<img width="1" height="1">';
+                    result.onmousedown = new EventHandler(layout, layout.handleMouseDownEvent, particle.id)
+                    return result;
+                }
+            }
+
+            layout.forces.spring._default = function (nodeA, nodeB, isParentChild) {
+                return {
+                    springConstant: 0.2,
+                    dampingConstant: 0.2,
+                    restLength: 32
+                }
+            }
+
+            layout.forces.magnet = function () {
+                return {
+                    magnetConstant: -4000,
+                    minimumDistance: 10
+                }
+            }
 
 
-	<script language="JavaScript" src="lib/jsviz/0.3.3/physics/ParticleModel.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/physics/Magnet.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/physics/Spring.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/physics/Particle.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/physics/RectangleParticle.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/physics/PreferredDistanceCalculator.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/physics/RungeKuttaIntegrator.js"></script>
-		
-	<script language="JavaScript" src="lib/jsviz/0.3.3/layout/graph/ForceDirectedLayout.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/layout/view/HTMLGraphView.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/layout/view/SVGGraphView.js"></script>
+            /* 3) Override the default edge properties builder.
+            * 
+            * @return DOMElement
+            */
+            layout.viewEdgeBuilder = function (dataNodeSrc, dataNodeDest) {
+                if (this.svg) {
+                    return {
+                        'stroke': "black",
+                        'stroke-width': '2px',
+                        'stroke-dasharray': '2,4'
+                    }
+                } else {
+                    return {
+                        'pixelColor': "black",
+                        'pixelWidth': '2px',
+                        'pixelHeight': '2px',
+                        'pixels': 10
+                    }
+                }
+            }
 
-	<script language="JavaScript" src="lib/jsviz/0.3.3/util/Timer.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/util/EventHandler.js"></script>
+            /* 4) Load up some stuff by hand
+            * 
+            */
 
-	<script language="JavaScript" src="lib/jsviz/0.3.3/io/DataGraph.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/io/HTTP.js"></script>
-	<script language="JavaScript" src="lib/jsviz/0.3.3/io/XMLTreeLoader.js"></script>
+            layout.model.ENTROPY_THROTTLE = false;
 
-	<script language="JavaScript">
-
-	    function GetSampleLayout() {
-
-	        /* 
-	        * If you're going to place the graph in an HTML Element, other
-	        * the <body>, remember that it must have a known size and
-	        * position (via element.offsetWidth, element.offsetHeight,
-	        * element.offsetTop, element.offsetLeft).
-	        */
-	        var layout = new ForceDirectedLayout(document.body, true);
-
-	        layout.config._default = {
-	            model: function (dataNode) {
-	                return {
-	                    mass: .5
-	                }
-	            },
-	            view: function (dataNode, particle) {
-
-	                var result = dataNode.domElement;
-
-	                //				        var color = dataNode.color.replace("#", "");
-	                //				        nodeElement.style.backgroundImage = "url(http://kylescholz.com/cgi-bin/bubble.pl?title=&r=20&pt=8&b=888888&c=" + color + ")";
-	                //				        nodeElement.innerHTML = '<img width="1" height="1">';
-	                result.onmousedown = new EventHandler(layout, layout.handleMouseDownEvent, particle.id)
-	                return result;
-	            }
-	        }
-
-	        layout.forces.spring._default = function (nodeA, nodeB, isParentChild) {
-	            return {
-	                springConstant: 0.2,
-	                dampingConstant: 0.2,
-	                restLength: 32
-	            }
-	        }
-
-	        layout.forces.magnet = function () {
-	            return {
-	                magnetConstant: -4000,
-	                minimumDistance: 10
-	            }
-	        }
+            return layout;
+        }
 
 
-	        /* 3) Override the default edge properties builder.
-	        * 
-	        * @return DOMElement
-	        */
-	        layout.viewEdgeBuilder = function (dataNodeSrc, dataNodeDest) {
-	            if (this.svg) {
-	                return {
-	                    'stroke': "black",
-	                    'stroke-width': '2px',
-	                    'stroke-dasharray': '2,4'
-	                }
-	            } else {
-	                return {
-	                    'pixelColor': "black",
-	                    'pixelWidth': '2px',
-	                    'pixelHeight': '2px',
-	                    'pixels': 10
-	                }
-	            }
-	        }
+        function init(ioc) {
 
-	        /* 4) Load up some stuff by hand
-	        * 
-	        */
+            var layout = GetSampleLayout();
+            var bindingView = new BindingView(ioc);
 
-	        layout.model.ENTROPY_THROTTLE = false;
+            function getNode(name) {
+                var node = new DataGraphNode();
+                var domElement = bindingView.Draw(name);
+                node.domElement = domElement[0];
+                node.particle = new RectangleParticle(.5, 0, 0).SetDimensions(domElement.bindingView_width(), domElement.bindingView_height());
+                return node;
+            }
 
-	        return layout;
-	    }
+            var nodes = [];
+            var namedNodes = {};
+            existingPaths = {};
 
+            function shouldAddPath(name, parent) {
 
-	    function init() {
+                if (!existingPaths[name]) {
+                    existingPaths[name] = {};
+                    existingPaths[name][parent] = true;
+                    return true;
+                }
 
-	        var layout = GetSampleLayout();
-	        var bindingView = new BindingView(globalDependencyGrapher._ioc);
+                if (!existingPaths[name][parent]) {
+                    existingPaths[name][parent] = true;
+                    return true;
+                }
 
-	        function getNode(name) {
-	            var node = new DataGraphNode();
-	            var domElement = bindingView.Draw(name);
-	            var inner = domElement.children("div");
-	            node.domElement = domElement[0];
-	            node.particle = new RectangleParticle(.5, 0, 0).SetDimensions(inner.width(), inner.height());
-	            return node;
-	        }
-
-		    var nodes = [];
-		    var namedNodes = {};
-		    existingPaths = {};
-
-		    function shouldAddPath(name, parent) {
-
-		        if (!existingPaths[name]) {
-		            existingPaths[name] = {};
-		            existingPaths[name][parent] = true;
-		            return true;
-		        }
-
-		        if (!existingPaths[name][parent]) {
-		            existingPaths[name][parent] = true;
-		            return true;
-		        }
-
-		        return false;
-		    }
+                return false;
+            }
 
             function verifyNodeExists(name) {
 
@@ -172,40 +160,92 @@
                     return;
 
                 var node = getNode(name);
-		        layout.newDataGraphNode(node);
+                layout.newDataGraphNode(node);
 
-		        namedNodes[name] = node;
-		        nodes.push(node);
-		    }
+                namedNodes[name] = node;
+                nodes.push(node);
+            }
 
-		    globalDependencyGrapher.VisitDependencies(function (name, parent) {
+            (new DependencyGrapher(ioc)).VisitDependencies(function (name, parent) {
 
                 if (name)
                     verifyNodeExists(name);
 
                 if (parent)
-		            verifyNodeExists(parent);
+                    verifyNodeExists(parent);
 
                 if (name && parent && shouldAddPath(name, parent)) {
-		            layout.newDataGraphEdge(namedNodes[name], namedNodes[parent]);
-		        }
-		    });
-		    /* 5) Control the addition of nodes and edges with a timer.
-		    * 
-		    * This enables the graph to start organizng as data is loaded.
-		    * Use a larger tick time for smoother animation, but slower
-		    * build time.
-		    */
-		    var buildTimer = new Timer(150);
-		    buildTimer.subscribe(layout);
-		    buildTimer.start();
-		}
+                    layout.newDataGraphEdge(namedNodes[name], namedNodes[parent]);
+                }
+            });
+            /* 5) Control the addition of nodes and edges with a timer.
+            * 
+            * This enables the graph to start organizng as data is loaded.
+            * Use a larger tick time for smoother animation, but slower
+            * build time.
+            */
+            var buildTimer = new Timer(150);
+            buildTimer.subscribe(layout);
+            buildTimer.start();
+        }
 
-		$(function () {
-		    init();
-		});
-	</script>
+        /*
 
+        function getSampleIoc() {
+            function Foo() {
+            }
+
+            function Bar() {
+            }
+
+            function Baz() {
+            }
+
+            function FooBar() {
+            }
+
+            function BarBaz() {
+            }
+
+            function FooBarbazBarBaz() {
+            }
+
+            var ioc = new JsfIoc();
+
+            ioc.Register({
+                name: "Foo",
+                service: Foo
+            });
+
+            ioc.Register({
+                name: "Bar",
+                service: Bar
+            });
+
+            ioc.RegisterInstance("Baz", new Baz());
+
+            ioc.Register({
+                name: "FooBar",
+                service: FooBar,
+                requires: ["Foo", "Bar"]
+            });
+
+            ioc.Register({
+                name: "BarBaz",
+                service: BarBaz,
+                requires: ["Bar", "Baz"],
+                eventSource: ["Start", "Stop", "Rewind", "Record", "Eject"]
+            });
+
+            return ioc;
+        }
+        */
+
+        $(function () {
+            init(sampleIoc);    
+        });
+
+
+    </script>
 </body>
 </html>
-  
