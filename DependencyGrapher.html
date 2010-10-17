@@ -12,6 +12,7 @@
   <script type="text/javascript" src="src/Binding.js"></script>
   <script type="text/javascript" src="src/JsfIoc.js"></script>
   <script type="text/javascript" src="src/ParameterTypes.js"></script>
+  <script type="text/javascript" src="testutil/BindingView.js"></script>
   <script type="text/javascript" src="testutil/DependencyGraphing.js"></script>
   <script type="text/javascript" src="testutil/DependencyGraphing.tests.js"></script>
   <script type="text/javascript" src="testutil/FakeJsfIoc.js"></script>
@@ -74,18 +75,7 @@
 	            },
 	            view: function (dataNode, particle) {
 
-	                var element = $("<div><div></div></div>").css("position", "absolute");
-	                var inner = element.find("div").css("position", "relative");
-
-	                element.width(1);
-	                element.height(1);
-	                inner.width(particle.width);
-	                inner.height(particle.height);
-	                inner.css("left", -particle.width / 2);
-	                inner.css("top", -particle.height / 2);
-	                inner.css("background", dataNode.color);
-
-	                var result = element[0];
+	                var result = dataNode.domElement;
 
 	                //				        var color = dataNode.color.replace("#", "");
 	                //				        nodeElement.style.backgroundImage = "url(http://kylescholz.com/cgi-bin/bubble.pl?title=&r=20&pt=8&b=888888&c=" + color + ")";
@@ -99,7 +89,7 @@
 	            return {
 	                springConstant: 0.2,
 	                dampingConstant: 0.2,
-	                restLength: 16
+	                restLength: 32
 	            }
 	        }
 
@@ -118,13 +108,13 @@
 	        layout.viewEdgeBuilder = function (dataNodeSrc, dataNodeDest) {
 	            if (this.svg) {
 	                return {
-	                    'stroke': dataNodeSrc.color,
+	                    'stroke': "black",
 	                    'stroke-width': '2px',
 	                    'stroke-dasharray': '2,4'
 	                }
 	            } else {
 	                return {
-	                    'pixelColor': dataNodeSrc.color,
+	                    'pixelColor': "black",
 	                    'pixelWidth': '2px',
 	                    'pixelHeight': '2px',
 	                    'pixels': 10
@@ -145,23 +135,43 @@
 	    function init() {
 
 	        var layout = GetSampleLayout();
+	        var bindingView = new BindingView(globalDependencyGrapher._ioc);
 
-	        function getNode() {
+	        function getNode(name) {
 	            var node = new DataGraphNode();
-	            node.color = (Math.random() > .5) ? "#8888bb" : "#bb8888";
-	            node.particle = new RectangleParticle(.5, 0, 0).SetDimensions(100, 20);
+	            var domElement = bindingView.Draw(name);
+	            var inner = domElement.children("div");
+	            node.domElement = domElement[0];
+	            node.particle = new RectangleParticle(.5, 0, 0).SetDimensions(inner.width(), inner.height());
 	            return node;
 	        }
 
 		    var nodes = [];
 		    var namedNodes = {};
+		    existingPaths = {};
+
+		    function shouldAddPath(name, parent) {
+
+		        if (!existingPaths[name]) {
+		            existingPaths[name] = {};
+		            existingPaths[name][parent] = true;
+		            return true;
+		        }
+
+		        if (!existingPaths[name][parent]) {
+		            existingPaths[name][parent] = true;
+		            return true;
+		        }
+
+		        return false;
+		    }
 
             function verifyNodeExists(name) {
 
                 if (namedNodes[name])
                     return;
 
-                var node = getNode();
+                var node = getNode(name);
 		        layout.newDataGraphNode(node);
 
 		        namedNodes[name] = node;
@@ -176,7 +186,7 @@
                 if (parent)
 		            verifyNodeExists(parent);
 
-		        if (name && parent) {
+                if (name && parent && shouldAddPath(name, parent)) {
 		            layout.newDataGraphEdge(namedNodes[name], namedNodes[parent]);
 		        }
 		    });

@@ -56,7 +56,8 @@ describe("dependency graphing", function () {
         ioc.Register({
             name: "BarBaz",
             service: BarBaz,
-            requires: ["Bar", "Baz"]
+            requires: ["Bar", "Baz"],
+            eventSource: ["Start", "Stop", "Rewind", "Record", "Eject"]
         });
 
         ioc.Register({
