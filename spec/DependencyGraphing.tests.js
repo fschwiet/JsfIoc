@@ -45,10 +45,7 @@ describe("dependency graphing", function () {
             service: Bar
         });
 
-        ioc.Register({
-            name: "Baz",
-            service: Baz
-        });
+        ioc.RegisterInstance("Baz", new Baz());
 
         ioc.Register({
             name: "FooBar",
@@ -73,7 +70,7 @@ describe("dependency graphing", function () {
 
     it("GetRegisteredServices", function () {
 
-        expect(sut.GetRegisteredServices()).toEqual(["Foo", "Bar", "Baz", "FooBar", "BarBaz", "FooBarbazBarBaz"]);
+        expect(sut.GetRegisteredServices()).toEqual(["Foo", "Bar", "FooBar", "BarBaz", "FooBarbazBarBaz"]);
     });
 
     describe("GetTopLevelServices", function () {
@@ -93,14 +90,14 @@ describe("dependency graphing", function () {
         // Bar, Baz are counted twice for FooBarbazBarBaz just because it is asier to implement
     });
 
-    it("GetSortValue - sort order is the order services are declared", function () {
+    it("GetSortValue - sort order is the order services are declared, followed by instances", function () {
 
         expect(sut.GetSortValue("Foo")).toEqual(0);
         expect(sut.GetSortValue("Bar")).toEqual(1);
-        expect(sut.GetSortValue("Baz")).toEqual(2);
-        expect(sut.GetSortValue("FooBar")).toEqual(3);
-        expect(sut.GetSortValue("BarBaz")).toEqual(4);
-        expect(sut.GetSortValue("FooBarbazBarBaz")).toEqual(5);
+        expect(sut.GetSortValue("FooBar")).toEqual(2);
+        expect(sut.GetSortValue("BarBaz")).toEqual(3);
+        expect(sut.GetSortValue("FooBarbazBarBaz")).toEqual(4);
+        expect(sut.GetSortValue("Baz")).toEqual(5);
     });
 
     it("VisitDependencies", function () {
@@ -150,5 +147,4 @@ FooBar\n\
         
         expect(result).toEqual(expected);
     });
-
 });
