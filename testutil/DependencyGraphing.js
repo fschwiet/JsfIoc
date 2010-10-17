@@ -67,11 +67,14 @@ DependencyGrapher.prototype = {
 
         var binding = this._ioc._bindings[serviceName];
 
-        var requires = binding.requires;
+        if (binding) {
 
-        if (requires) for (var i = 0; i < requires.length; i++) {
+            var requires = binding.requires;
 
-            sum += this.GetWeightOfDependencies(requires[i]);
+            if (requires) for (var i = 0; i < requires.length; i++) {
+
+                sum += this.GetWeightOfDependencies(requires[i]);
+            }
         }
 
         this._dependencyWeights[serviceName] = sum;
@@ -117,18 +120,24 @@ DependencyGrapher.prototype = {
 
             visitor(node, parent, depth);
 
-            var requires = (this._ioc._bindings[node].requires || []).slice(0);
+            var nodeBinding = this._ioc._bindings[node];
+
+            var requires = [];
+
+            if (nodeBinding) {
+                requires = nodeBinding.requires.slice(0);
+            }
 
             this.VisitDependencies(visitor, requires, node, depth + 1);
         };
     },
 
-    SimpleGraph: function() {
-        
+    SimpleGraph: function () {
+
         var result = "";
 
-        this.VisitDependencies(function(node, parent, depth){
-            result += new Array(depth+1).join("    ") + node + "\n";
+        this.VisitDependencies(function (node, parent, depth) {
+            result += new Array(depth + 1).join("    ") + node + "\n";
         });
 
         return result;
