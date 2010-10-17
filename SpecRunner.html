@@ -2,37 +2,28 @@
   "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <title>Jasmine Test Runner</title>
+  <title>JsfIoc</title>
+
+  <!-- the lib\ requirements are only for test and testutil -->
+
   <link rel="stylesheet" type="text/css" href="lib/jasmine-0.11.1/jasmine.css">
   <script type="text/javascript" src="lib/jasmine-0.11.1/jasmine.js"></script>
   <script type="text/javascript" src="lib/jasmine-0.11.1/jasmine-html.js"></script>
 
-<!-- these includes only work from the project root,
-  including the original project files: -->
-  
-  <!-- include source files here... -->
-  <script type="text/javascript" src="src/JsfIoc.js"></script>
-  <script type="text/javascript" src="src/DependencyGraphing.js"></script>
-  <script type="text/javascript" src="src/FakeJsfIoc.js"></script>
-  <script type="text/javascript" src="src/ParameterTypes.js"></script>
-  <script type="text/javascript" src="src/Some.js"></script>
-
-  <!-- include spec files here... -->
-  <script type="text/javascript" src="spec/JsfIoc.tests.js"></script>
-  <script type="text/javascript" src="spec/DependencyGraphing.tests.js"></script>
-  <script type="text/javascript" src="spec/FakeJsfIoc.tests.js"></script>
-  <script type="text/javascript" src="spec/ParameterTypes.tests.js"></script>
-  <script type="text/javascript" src="spec/Some.tests.js"></script>
-
-<!-- these includes only work from the build folder,
-  including the combined/built javascript -->
-
-  <script type="text/javascript" src="JsfIoc.js"></script>
-  <script type="text/javascript" src="JsfIoc.tests.js"></script>
-
-<!-- the following requirements are test only -->
   <script type="text/javascript" src="lib/jquery/jquery-1.4.2.js"></script>
   <script type="text/javascript" src="lib/json2/json2.js"></script>
+
+  <script type="text/javascript" src="src/JsfIoc.js"></script>
+  <script type="text/javascript" src="src/JsfIoc.tests.js"></script>
+  <script type="text/javascript" src="src/ParameterTypes.js"></script>
+  <script type="text/javascript" src="src/ParameterTypes.tests.js"></script>
+  <script type="text/javascript" src="testutil/DependencyGraphing.js"></script>
+  <script type="text/javascript" src="testutil/DependencyGraphing.tests.js"></script>
+  <script type="text/javascript" src="testutil/FakeJsfIoc.js"></script>
+  <script type="text/javascript" src="testutil/FakeJsfIoc.tests.js"></script>
+  <script type="text/javascript" src="testutil/Some.js"></script>
+  <script type="text/javascript" src="testutil/Some.tests.js"></script>
+
   
 </head>
 <body>

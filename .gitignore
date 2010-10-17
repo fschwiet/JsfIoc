@@ -1,6 +1,11 @@
 _ReSharper.*
 *.ReSharper.user
 *.resharper.user
+*.ReSharper
+*.user
+*.csproj
 *.sln
 *.suo
-build\
+bin/*
+obj/*
+

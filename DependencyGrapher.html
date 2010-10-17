@@ -6,32 +6,17 @@
   <link rel="stylesheet" type="text/css" href="lib/jasmine-0.11.1/jasmine.css">
   <script type="text/javascript" src="lib/jasmine-0.11.1/jasmine.js"></script>
   <script type="text/javascript" src="lib/jasmine-0.11.1/jasmine-html.js"></script>
-
-<!-- these includes only work from the project root,
-  including the original project files: -->
-  
-  <!-- include source files here... -->
-  <script type="text/javascript" src="src/JsfIoc.js"></script>
-  <script type="text/javascript" src="src/DependencyGraphing.js"></script>
-  <script type="text/javascript" src="src/FakeJsfIoc.js"></script>
-  <script type="text/javascript" src="src/ParameterTypes.js"></script>
-  <script type="text/javascript" src="src/Some.js"></script>
-
-  <!-- include spec files here... -->
-
-  <script type="text/javascript" src="spec/DependencyGraphing.tests.js"></script>
-
- <!-- these includes only work from the build folder,
-  including the combined/built javascript 
-
-  <script type="text/javascript" src="JsfIoc.js"></script>
-  <script type="text/javascript" src="JsfIoc.tests.js"></script>
--->
-
-
-<!-- the following requirements are test only -->
   <script type="text/javascript" src="lib/jquery/jquery-1.4.2.js"></script>
   <script type="text/javascript" src="lib/json2/json2.js"></script>
+
+  <script type="text/javascript" src="src/JsfIoc.js"></script>
+  <script type="text/javascript" src="src/ParameterTypes.js"></script>
+  <script type="text/javascript" src="testutil/DependencyGraphing.js"></script>
+  <script type="text/javascript" src="testutil/DependencyGraphing.tests.js"></script>
+  <script type="text/javascript" src="testutil/FakeJsfIoc.js"></script>
+  <script type="text/javascript" src="testutil/Some.js"></script>
+
+
 
   <script type="text/javascript" src="lib/jsviz/0.3.3/physics/Particle.js"></script>
   <script type="text/javascript" src="lib/jsviz/0.3.3/physics/Particle.tests.js"></script>
@@ -98,7 +83,7 @@
 	                inner.height(particle.height);
 	                inner.css("left", -particle.width / 2);
 	                inner.css("top", -particle.height / 2);
-	                inner.css("background", "blue");
+	                inner.css("background", dataNode.color);
 
 	                var result = element[0];
 
@@ -114,7 +99,7 @@
 	            return {
 	                springConstant: 0.2,
 	                dampingConstant: 0.2,
-	                restLength: 10
+	                restLength: 16
 	            }
 	        }
 
