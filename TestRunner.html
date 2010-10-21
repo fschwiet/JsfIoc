@@ -45,19 +45,8 @@
   var ioc = GetSampleIoc();
   var vizFormatting = new GraphVizFormatting(ioc);
 
-  var vizString = 'digraph {\n    graph [rankdir = "LR"];';
+  vizFormatting.AppendSampleCodetoDocument();
 
-  for (var bindingName in ioc._bindings) {
-
-      if (!ioc._bindings.hasOwnProperty(bindingName))
-          continue;
-
-      vizString += "    " + vizFormatting.GetBinding(bindingName) + "\n";
-  }
-
-  vizString += "}";
-
-  $("body").append("<pre>" + vizString + "</pre>");
 </script>
 
 </body>

@@ -68,5 +68,22 @@ GraphVizFormatting.prototype = {
         }
 
         return bindingName + ' [ shape="record", label="' + bindingName + eventListenerString + eventSourceString + '" ]' + relationString;
+    },
+
+    AppendSampleCodetoDocument: function () {
+
+        var vizString = 'digraph {\n    graph [rankdir = "LR"];';
+
+        for (var bindingName in ioc._bindings) {
+
+            if (!ioc._bindings.hasOwnProperty(bindingName))
+                continue;
+
+            vizString += "    " + vizFormatting.GetBinding(bindingName) + "\n";
+        }
+
+        vizString += "}";
+
+        $("body").append("<pre>" + vizString + "</pre>");
     }
 }
