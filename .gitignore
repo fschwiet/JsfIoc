@@ -4,3 +4,5 @@ _ReSharper.*
 *.sln
 *.suo
 build\
+*.csproj
+*.csproj.*
