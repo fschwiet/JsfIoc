@@ -1,0 +1,17 @@
+digraph {
+	graph [
+	rankdir = "LR"
+	];
+
+    "_node0" [
+		shape = "record"
+	];
+
+    "node1" [
+		label = "<f0>line1 line2 line3 |<f1> line5"
+		shape = "record"
+	];
+	
+	"_node0" -> "node1" [
+	];
+}
