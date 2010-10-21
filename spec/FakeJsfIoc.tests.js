@@ -220,7 +220,7 @@ describe("FakeJsfIoc", function () {
 
         it("RegisterInstance can set a service", function() {
 
-            var expectedFoo = some.Object();
+            var expectedFoo = { a: 1};
 
             sut.RegisterInstance("_foo", expectedFoo);
 

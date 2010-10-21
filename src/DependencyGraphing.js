@@ -38,7 +38,7 @@ DependencyGrapher.prototype = {
 
             var binding = bindings[name];
 
-            if (binding.requires) {
+            if (binding && binding.requires) {
                 for (var i = 0; i < binding.requires.length; i++) {
                     for (var j = 0; j < servicesLeft.length; j++) {
 
@@ -124,7 +124,7 @@ DependencyGrapher.prototype = {
 
             var requires = [];
 
-            if (nodeBinding) {
+            if (nodeBinding && nodeBinding.requires) {
                 requires = nodeBinding.requires.slice(0);
             }
 
