@@ -31,9 +31,8 @@ describe("dependency graphing", function () {
     var ioc;
     var sut;
 
-    beforeEach(function () {
-
-        ioc = new JsfIoc();
+    window.GetSampleIoc = function () {
+        var ioc = new JsfIoc();
 
         ioc.Register({
             name: "Foo",
@@ -50,7 +49,9 @@ describe("dependency graphing", function () {
         ioc.Register({
             name: "FooBar",
             service: FooBar,
-            requires: ["Foo", "Bar"]
+            requires: ["Foo", "Bar"],
+            eventListener: ["init"],
+            eventSource: ["eject"]
         });
 
         ioc.Register({
@@ -65,7 +66,12 @@ describe("dependency graphing", function () {
             requires: ["Foo", "BarBaz", "Bar", "Baz"]
         });
 
-        sut = new DependencyGrapher(ioc);
+        return ioc;
+    }
+
+    beforeEach(function () {
+
+        sut = new DependencyGrapher(GetSampleIoc());
     });
 
     it("GetRegisteredServices", function () {
@@ -140,11 +146,7 @@ FooBar\n\
 ';
 
         var result = sut.SimpleGraph();
-                
-        var pre = $("<pre></pre>");
-        pre.text(result);
-        $("body").append(pre);
-        
+
         expect(result).toEqual(expected);
     });
 });
