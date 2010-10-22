@@ -382,7 +382,7 @@ GraphVizFormatting.prototype = {
             if (!ioc._bindings.hasOwnProperty(bindingName))
                 continue;
 
-            vizString += "    " + vizFormatting.GetBinding(bindingName) + "\n";
+            vizString += "    " + this.GetBinding(bindingName) + "\n";
         }
 
         vizString += "}";

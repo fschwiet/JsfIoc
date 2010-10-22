@@ -1,5 +1,4 @@
-﻿/// <reference path="../lib/jasmine-0.11.1/jasmine.js" />
-/// <reference path="../Intellisense.js" />
+﻿/// <reference path="../Intellisense.js" />
 
 describe("GraphVizFormatting", function () {
 

@@ -14,13 +14,27 @@ describe("Binding", function () {
         expect(sut.eventListener).toEqual([]);
     });
 
-    it("can give friendly name", function () {
+    describe("has a friendly name", function () {
 
-        function Foo() { }
+        it("which is the constructor's name, if available", function () {
 
-        var sut = new Binding();
-        sut.service = Foo;
+            function Foo() { }
 
-        expect(sut.GetFriendlyName()).toEqual("Foo");
+            var sut = new Binding();
+            sut.service = Foo;
+
+            expect(sut.GetFriendlyName()).toEqual("Foo");
+        });
+
+        it("otherwise, its the service name", function () {
+
+            function Foo() { }
+
+            var sut = new Binding();
+            sut.service = function () { };
+            sut.name = "someServiceName";
+
+            expect(sut.GetFriendlyName()).toEqual("someServiceName");
+        });
     });
 });
