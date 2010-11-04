@@ -1,3 +1,4 @@
+/// <reference path="../Intellisense.js" />
 
 
 describe("FakeJsfIoc", function () {
@@ -35,8 +36,7 @@ describe("FakeJsfIoc", function () {
 
         sut = new FakeJsfIoc(ioc);
     });
-
-
+    
     it("configuration parameters can be passed on Load()", function () {
 
         function ClassWithInitializationParameters() {
@@ -216,11 +216,11 @@ describe("FakeJsfIoc", function () {
         });
     });
 
-    describe("Can overload any instance", function() {
+    describe("Can overload any instance", function () {
 
-        it("RegisterInstance can set a service", function() {
+        it("RegisterInstance can set a service", function () {
 
-            var expectedFoo = { a: 1};
+            var expectedFoo = { a: 1 };
 
             sut.RegisterInstance("_foo", expectedFoo);
 
@@ -229,11 +229,11 @@ describe("FakeJsfIoc", function () {
             expect(bar._foo).toEqual(expectedFoo);
         });
 
-        it("RegisterInstance fails if the service is already set", function() {
+        it("RegisterInstance fails if the service is already set", function () {
 
             sut.Load(Bar);
 
-            expect(function() {
+            expect(function () {
                 sut.RegisterInstance("_foo", {});
             }).toThrow("Service _foo already has a test definition");
         });

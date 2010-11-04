@@ -155,11 +155,9 @@ function FakeJsfIoc(ioc) {
     this.TestDoublePolicy = FakeJsfIoc.StubBehavior;
 }
 
-
 FakeJsfIoc.StubBehavior = function(dependencyName, functionName) { 
     return function() {};
 };
-
 
 FakeJsfIoc.MockBehavior = function(dependencyName, functionName) { 
     
@@ -173,6 +171,10 @@ FakeJsfIoc.MockBehavior = function(dependencyName, functionName) {
 
 FakeJsfIoc.prototype = {
     Load: function (service) {
+        /// <summary>Load a service, replacing all dependencies with test doubles.</summary>
+        /// <param name="service" type="Function">
+        ///     service constructor
+        /// </param>
 
         var binding = this.GetBindingByClass(service);
 
@@ -207,7 +209,12 @@ FakeJsfIoc.prototype = {
         return result;
     },
     LoadTestDouble: function (nameOrService) {
-
+        /// <summary>Access the test doubles used as dependencies when .Load() is called.</summary>
+        /// <param name="nameOrService">
+        ///     service name or service constructor
+        /// </param>
+        /// <returns type="Boolean">return description</returns>
+        
         name = nameOrService;
 
         if (typeof (nameOrService) == "function") {
@@ -240,7 +247,12 @@ FakeJsfIoc.prototype = {
         return result;
     },
     IncludeReal: function (includedServices) {
-
+        /// <summary>List services that should be loaded as dependencies without using test doubles.</summary>
+        /// <param name="includedServices">
+        ///     Name or name of arrays.
+        /// </param>
+        /// <returns type="FakeIoc">call Load</returns>
+        
         var that = this;
 
         if (typeof(includedServices) == "string") {
@@ -258,6 +270,13 @@ FakeJsfIoc.prototype = {
 
     },
     RegisterInstance: function (name, instance) {
+        /// <summary>Register an object as a service by name.</summary>
+        /// <param name="name">
+        ///     Name of the service
+        /// </param>
+        /// <param name="instance">
+        ///     The service instance
+        /// </param>
 
         if (this._preloadedDependencies[name]) {
             throw new Error("Service " + name + " already has a test definition");
@@ -266,6 +285,7 @@ FakeJsfIoc.prototype = {
         this._preloadedDependencies[name] = instance;
     },
     GetBindingByClass: function (service) {
+
         var binding = null;
 
         for (var bindingName in this._ioc._bindings) {
@@ -300,6 +320,7 @@ FakeJsfIoc.prototype = {
         return result;
     }
 };
+
 // GraphVizFormatting.js
 
 
