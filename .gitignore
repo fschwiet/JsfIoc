@@ -1,8 +1,10 @@
+bin/
+obj/
+build/
 _ReSharper.*
 *.ReSharper.user
 *.resharper.user
 *.sln
 *.suo
-build\
 *.csproj
 *.csproj.*
