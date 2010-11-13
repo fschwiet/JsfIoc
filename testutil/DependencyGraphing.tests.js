@@ -1,3 +1,5 @@
+/// <reference path="..\Intellisense.js"/>
+
 
 beforeEach(function(){
     this.addMatchers({
@@ -34,37 +36,15 @@ describe("dependency graphing", function () {
     window.GetSampleIoc = function () {
         var ioc = new JsfIoc();
 
-        ioc.Register({
-            name: "Foo",
-            service: Foo
-        });
+        ioc.Register("Foo").withConstructor(Foo);
+        ioc.Register("Bar").withConstructor(Bar);
+        ioc.Register("Baz").withInstance(new Baz());
 
-        ioc.Register({
-            name: "Bar",
-            service: Bar
-        });
+        ioc.Register("FooBar").withConstructor(FooBar).withDependencies("Foo", "Bar").receivingEvents("init").sendingEvents("eject");
+        
+        ioc.Register("BarBaz").withConstructor(BarBaz).withDependencies("Bar", "Baz");
 
-        ioc.RegisterInstance("Baz", new Baz());
-
-        ioc.Register({
-            name: "FooBar",
-            service: FooBar,
-            requires: ["Foo", "Bar"],
-            eventListener: ["init"],
-            eventSource: ["eject"]
-        });
-
-        ioc.Register({
-            name: "BarBaz",
-            service: BarBaz,
-            requires: ["Bar", "Baz"]
-        });
-
-        ioc.Register({
-            name: "FooBarbazBarBaz",
-            service: FooBarbazBarBaz,
-            requires: ["Foo", "BarBaz", "Bar", "Baz"]
-        });
+        ioc.Register("FooBarbazBarBaz").withConstructor(FooBarbazBarBaz).withDependencies("Foo", "BarBaz", "Bar", "Baz");
 
         return ioc;
     }

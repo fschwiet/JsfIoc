@@ -1,6 +1,6 @@
 
-$src = @();
-$testutil = @();
+$src = @( gi "license.txt" );
+$testutil = @( gi "license.txt" );
 $tests = @();
 
 switch -w (gci .\src *.js -rec) {

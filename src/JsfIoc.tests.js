@@ -1,4 +1,6 @@
-﻿
+﻿/// <reference path="..\Intellisense.js"/>
+
+
 describe("JsfIoc", function () {
 
     function Foo() {
@@ -11,10 +13,7 @@ describe("JsfIoc", function () {
 
         var sut = new JsfIoc();
 
-        sut.Register({
-            name: "_foo",
-            service: Foo
-        });
+        sut.Register("_foo").withConstructor(Foo);
 
         var result = sut.Load("_foo");
 
@@ -25,16 +24,9 @@ describe("JsfIoc", function () {
 
         var sut = new JsfIoc();
 
-        sut.Register({
-            name: "_bar",
-            service: Bar
-        });
+        sut.Register("_bar").withConstructor(Bar);
 
-        sut.Register({
-            name: "_foo",
-            service: Foo,
-            requires: ["_bar"]
-        });
+        sut.Register("_foo").withConstructor(Foo).withDependencies("_bar");
 
         var result = sut.Load("_foo");
 
@@ -49,11 +41,7 @@ describe("JsfIoc", function () {
 
             var sut = new JsfIoc();
 
-            sut.Register({
-                name: "_foo",
-                service: Foo,
-                parameters: ["_fooLevel"]
-            });
+            sut.Register("_foo").withConstructor(Foo).withParameters("_fooLevel");
 
             var result = sut.Load("_foo", parameterValue);
 
@@ -66,11 +54,7 @@ describe("JsfIoc", function () {
 
             var sut = new JsfIoc();
 
-            sut.Register({
-                name: "_foo",
-                service: Foo,
-                parameters: ["_fooLevel"]
-            });
+            sut.Register("_foo").withConstructor(Foo).withParameters("_fooLevel");
 
             sut.Configure("_foo", parameterValue);
 
@@ -96,11 +80,7 @@ describe("JsfIoc", function () {
 
                 sut = new JsfIoc();
 
-                sut.Register({
-                    service: Foo,
-                    name: "_foo",
-                    parameters: [IntegerParameter("_parameter")]
-                });
+                sut.Register("_foo").withConstructor(Foo).withParameters(IntegerParameter("_parameter"));
             });
 
             it("Configure() accepts valid parameters", function () {
@@ -142,11 +122,7 @@ describe("JsfIoc", function () {
 
             var sut = new JsfIoc();
 
-            sut.Register({
-                name: "_foo",
-                service: Foo,
-                singleton: true
-            });
+            sut.Register("_foo").withConstructor(Foo).asSingleton();
 
             var result1 = sut.Load("_foo");
             var result2 = sut.Load("_foo");
@@ -160,10 +136,7 @@ describe("JsfIoc", function () {
 
             var sut = new JsfIoc();
 
-            sut.Register({
-                name: "_foo",
-                service: Foo
-            });
+            sut.Register("_foo").withConstructor(Foo);
 
             var result1 = sut.Load("_foo");
             var result2 = sut.Load("_foo");
@@ -178,7 +151,7 @@ describe("JsfIoc", function () {
 
         var sut = new JsfIoc();
 
-        sut.RegisterInstance("_foo", instance);
+        sut.Register("_foo").withInstance(instance);
 
         var result = sut.Load("_foo");
 
@@ -193,24 +166,7 @@ describe("JsfIoc", function () {
 
             sut = new JsfIoc();
         });
-
-        describe("for Register()", function () {
-
-            it("Parameter 'name' should be a string", function () {
-
-                expect(function () {
-                    sut.Register({});
-                }).toThrow("Register must be called with string parameter 'name'");
-            });
-
-            it("Parameter 'service' should be a function", function () {
-
-                expect(function () {
-                    sut.Register({ name: "xyz321" });
-                }).toThrow("Register must be called with function parameter 'service'");
-            });
-        });
-
+        
         describe("invalid service references are identified", function () {
 
             it("for Load()", function () {
@@ -244,17 +200,8 @@ describe("JsfIoc", function () {
 
             sut = new JsfIoc();
 
-            sut.Register({
-                service: Source,
-                name: "_source",
-                eventSource: ["Initialize"]
-            });
-
-            sut.Register({
-                service: Listener,
-                name: "_listener",
-                eventListener: ["Initialize"]
-            });
+            sut.Register("_source").withConstructor(Source).sendingEvents("Initialize");
+            sut.Register("_listener").withConstructor(Listener).receivingEvents("Initialize");
         });
 
         describe("The event source uses _notifyEVENTNAME() to notify listeners", function () {
@@ -294,11 +241,7 @@ describe("JsfIoc", function () {
 
             it("bugfix: _notifyEVENTNAME() should create unique functional scope per _notify over-ride", function () {
 
-                sut.Register({
-                    service: Source,
-                    name: "_multisource",
-                    eventSource: ["AnotherEvent", "Initialize", "HelloWorld"]
-                });
+                sut.Register("_multisource").withConstructor(Source).sendingEvents("AnotherEvent", "Initialize", "HelloWorld");
 
                 spyOn(Listener.prototype, "OnInitialize");
 
@@ -313,6 +256,7 @@ describe("JsfIoc", function () {
         describe("Listeners can be called directly with the ioc container", function () {
 
             it("with parameters", function () {
+            
                 spyOn(Listener.prototype, "OnInitialize");
 
                 sut.NotifyEvent("Initialize", [1, 2, 3]);

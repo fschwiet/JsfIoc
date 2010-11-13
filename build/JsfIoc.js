@@ -1,34 +1,4 @@
-// Binding.js
-
-
-function Binding() {
-    this.requires = [];
-    this.parameters = [];
-    this.singleton = false;
-    this.eventSource = [];
-    this.eventListener = [];
-}
-
-Binding.WhitespaceRegex = /^\s*$/;
-
-Binding.prototype = {
-    constructor: Binding,
-
-    GetFriendlyName: function () {
-        var result = this.service.toString();
-
-        if (result.indexOf("(") > -1)
-            result = result.slice(0, result.indexOf("("));
-        if (result.indexOf("function ") == 0)
-            result = result.slice("function ".length);
-
-        if (Binding.WhitespaceRegex.test(result))
-            return this.name;
-
-        return result;
-    }
-}
-// JsfIoc.js
+// license.txt
 /*********************************************************************
 
 (this is the MIT license)
@@ -55,7 +25,158 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 **********************************************************************/
+// Binding.js
 
+
+
+function BindingStart(ioc, name) {
+    this.container = ioc;
+    this.name = name;
+
+    ExtendAsFluent.PrototypeOf(BindingStart);
+}
+
+
+BindingStart.prototype = {
+    constructor: BindingStart,
+
+    withConstructor: function (value) {
+	///	<summary>
+	///		Registers a component by constructor, returning a configuration builder with more options.
+	///	</summary>
+	///	<param name="value" type="function">
+    ///     The constructor for the component
+	///	</param>
+	///	<returns type="Binding" />
+
+        var binding = new Binding(this.name);
+        binding.service = value;
+
+        this.container.RegBinding(binding);
+
+        return binding;
+    },
+
+    withInstance: function (value) {
+	///	<summary>
+	///		Registers a component with a single instance.
+	///	</summary>
+	///	<param name="value" type="Object">
+    ///     An instance of the component
+	///	</param>
+
+        this.container.RegisterInstance(this.name, value);
+    },
+}
+
+
+function Binding(name) {
+    this.name = name;
+    this.requires = [];
+    this.parameters = [];
+    this.singleton = false;
+    this.eventSource = [];
+    this.eventListener = [];
+
+    ExtendAsFluent.PrototypeOf(Binding);
+}
+
+Binding.prototype = {
+    constructor: Binding,
+
+    withDependencies: function() {
+    	///	<returns type="Binding" />
+        Binding.AppendArgsToMember(arguments, this, "requires");
+    },
+
+    withParameters: function() {
+	    ///	<returns type="Binding" />
+        Binding.AppendArgsToMember(arguments, this, "parameters");
+
+        for (var i = 0; i < this.parameters.length; i++) {
+            if (typeof this.parameters[i] == "string") {
+                var name = this.parameters[i];
+                this.parameters[i] = {
+                    name: name,
+                    validator: function () { return true; }
+                };
+            }
+        }
+    },
+
+    asSingleton: function() {
+	    ///	<returns type="Binding" />
+        this.singleton = true;
+    },
+
+    sendingEvents: function() {
+	    ///	<returns type="Binding" />
+        Binding.AppendArgsToMember(arguments, this, "eventSource");
+    },
+
+    receivingEvents: function() {
+	    ///	<returns type="Binding" />
+        Binding.AppendArgsToMember(arguments, this, "eventListener");
+    },
+
+    GetFriendlyName: function () {
+        var result = this.service.toString();
+
+        if (result.indexOf("(") > -1)
+            result = result.slice(0, result.indexOf("("));
+        if (result.indexOf("function ") == 0)
+            result = result.slice("function ".length);
+
+        if (Binding.WhitespaceRegex.test(result))
+            return this.name;
+
+        return result;
+    }
+}
+
+Binding.WhitespaceRegex = /^\s*$/;
+
+Binding.AppendArgsToMember = function(args, target, member) {
+    for(var i = 0; i < args.length; i++) {
+        target[member].push(args[i]);
+    }
+}
+
+// ExtendAsFluent.js
+
+
+ExtendAsFluent = {};
+
+ExtendAsFluent.PrototypeOf = function (obj) {
+
+    var prototype = obj.prototype;
+
+    if (prototype.isFluent)
+        return;
+
+    prototype.isFluent = true;
+    
+    for (var key in prototype) {
+
+        if (!prototype.hasOwnProperty(key))
+            continue;
+
+        if (typeof (prototype[key]) == "function") {
+
+            prototype[key] = (function (original) {
+                return function () {
+                    var rv = original.apply(this, arguments);
+
+                    if (typeof (rv) === "undefined")
+                        return this;
+                    else
+                        return rv;
+                }
+            })(prototype[key]);
+        }
+    }
+};
+// JsfIoc.js
 
 function JsfIoc() {
     this._bindings = [];
@@ -64,29 +185,13 @@ function JsfIoc() {
 
 JsfIoc.prototype = {
 
-    Register: function (parameters) {
-        if (typeof parameters.name != "string") {
-            throw "Register must be called with string parameter 'name'";
-        } else if (typeof parameters.service != "function") {
-            throw "Register must be called with function parameter 'service'";
-        };
+    Register: function (name) {
+        ///	<returns type="BindingStart" />
 
-        var binding = new Binding();
-        for (var key in parameters) {
-            if (parameters.hasOwnProperty(key))
-                binding[key] = parameters[key];
-        }
+        return new BindingStart(this, name);
+    },
 
-        for (var i = 0; i < binding.parameters.length; i++) {
-            if (typeof binding.parameters[i] == "string") {
-                var name = binding.parameters[i];
-                binding.parameters[i] = {
-                    name: name,
-                    validator: function () { return true; }
-                };
-            }
-        }
-
+    RegBinding: function (binding) {
         this._bindings[binding.name] = binding;
     },
 
@@ -194,6 +299,7 @@ JsfIoc.prototype = {
 };
 
 var ioc = new JsfIoc();
+
 // ParameterTypes.js
 
 function JQueryElementParameter(name) {

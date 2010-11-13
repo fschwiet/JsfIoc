@@ -21,18 +21,9 @@ describe("FakeJsfIoc", function () {
 
         ioc = new JsfIoc();
 
-        ioc.Register({
-            name: "_foo",
-            service: Foo
-        });
-
-        ioc.Register({
-            name: "_bar",
-            service: Bar,
-            requires: ["_foo"]
-        });
-
-        ioc.RegisterInstance("_fooInstance", new Foo());
+        ioc.Register("_foo").withConstructor(Foo);
+        ioc.Register("_bar").withConstructor(Bar).withDependencies("_foo");
+        ioc.Register("_fooInstance").withInstance(new Foo());
 
         sut = new FakeJsfIoc(ioc);
     });
@@ -42,11 +33,7 @@ describe("FakeJsfIoc", function () {
         function ClassWithInitializationParameters() {
         };
 
-        ioc.Register({
-            name: "_some",
-            service: ClassWithInitializationParameters,
-            parameters: ["_a", "_b", "_c"]
-        });
+        ioc.Register("_some").withConstructor(ClassWithInitializationParameters).withParameters("_a", "_b", "_c");
 
         var result = sut.Load(ClassWithInitializationParameters, 1, 2, 3);
 
@@ -200,11 +187,7 @@ describe("FakeJsfIoc", function () {
 
         it("_notifyEVENTNAME() is added according to the current test double policy", function () {
 
-            ioc.Register({
-                service: Source,
-                name: "_source",
-                eventSource: ["Initialize"]
-            });
+            ioc.Register("_source").withConstructor(Source).sendingEvents("Initialize");
 
             sut.TestDoublePolicy = FakeJsfIoc.MockBehavior;
 

@@ -12,7 +12,7 @@ describe("GraphVizFormatting", function () {
 
         var ioc = new JsfIoc();
 
-        ioc.RegisterInstance("_foo", {});
+        ioc.Register("_foo").withInstance({});
 
         var sut = new GraphVizFormatting(ioc);
 
@@ -24,12 +24,10 @@ describe("GraphVizFormatting", function () {
     describe("can format registered services", function () {
 
         it("that are plain", function () {
+
             var ioc = new JsfIoc();
 
-            ioc.Register({
-                service: Foo,
-                name: "_foo"
-            });
+            ioc.Register("_foo").withConstructor(Foo);
 
             var sut = new GraphVizFormatting(ioc);
 
@@ -42,11 +40,7 @@ describe("GraphVizFormatting", function () {
 
             var ioc = new JsfIoc();
 
-            ioc.Register({
-                service: Foo,
-                name: "_foo",
-                eventSource: ["eject"]
-            });
+            ioc.Register("_foo").withConstructor(Foo).sendingEvents("eject");
 
             var sut = new GraphVizFormatting(ioc);
 
@@ -59,11 +53,7 @@ describe("GraphVizFormatting", function () {
 
             var ioc = new JsfIoc();
 
-            ioc.Register({
-                service: Foo,
-                name: "_foo",
-                eventSource: ["one", "two", "three", "four", "five"]
-            });
+            ioc.Register("_foo").withConstructor(Foo).sendingEvents("one", "two", "three", "four", "five");
 
             var sut = new GraphVizFormatting(ioc);
 
@@ -76,12 +66,8 @@ describe("GraphVizFormatting", function () {
 
             var ioc = new JsfIoc();
 
-            ioc.Register({
-                service: Foo,
-                name: "_foo",
-                eventListener: ["eject"]
-            });
-
+            ioc.Register("_foo").withConstructor(Foo).receivingEvents("eject");
+            
             var sut = new GraphVizFormatting(ioc);
 
             var result = sut.GetBinding("_foo");
@@ -93,12 +79,8 @@ describe("GraphVizFormatting", function () {
 
             var ioc = new JsfIoc();
 
-            ioc.Register({
-                service: Foo,
-                name: "_foo",
-                eventListener: ["one", "two", "three", "four", "five"]
-            });
-
+            ioc.Register("_foo").withConstructor(Foo).receivingEvents("one", "two", "three", "four", "five");
+            
             var sut = new GraphVizFormatting(ioc);
 
             var result = sut.GetBinding("_foo");
@@ -110,16 +92,8 @@ describe("GraphVizFormatting", function () {
 
             var ioc = new JsfIoc();
 
-            ioc.Register({
-                service: Foo,
-                name: "_foo",
-                requires: ["_bar", "_baz"]
-            });
-
-            ioc.Register({
-                service: Bar,
-                name: "_bar"
-            });
+            ioc.Register("_foo").withConstructor(Foo).withDependencies("_bar", "_baz");
+            ioc.Register("_bar").withConstructor(Bar);
 
             var sut = new GraphVizFormatting(ioc);
 
@@ -133,10 +107,7 @@ describe("GraphVizFormatting", function () {
 
         var ioc = new JsfIoc();
 
-        ioc.Register({
-            service: Foo,
-            name: "_foo"
-        });
+        ioc.Register("_foo").withConstructor(Foo);
 
         var sut = new GraphVizFormatting(ioc);
 

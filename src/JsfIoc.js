@@ -1,31 +1,4 @@
-﻿/*********************************************************************
-
-(this is the MIT license)
-
-Copyright (c) 2010 Frank Schwieterman
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-**********************************************************************/
-
-
+﻿
 function JsfIoc() {
     this._bindings = [];
     this._singletons = [];
@@ -33,29 +6,13 @@ function JsfIoc() {
 
 JsfIoc.prototype = {
 
-    Register: function (parameters) {
-        if (typeof parameters.name != "string") {
-            throw "Register must be called with string parameter 'name'";
-        } else if (typeof parameters.service != "function") {
-            throw "Register must be called with function parameter 'service'";
-        };
+    Register: function (name) {
+        ///	<returns type="BindingStart" />
 
-        var binding = new Binding();
-        for (var key in parameters) {
-            if (parameters.hasOwnProperty(key))
-                binding[key] = parameters[key];
-        }
+        return new BindingStart(this, name);
+    },
 
-        for (var i = 0; i < binding.parameters.length; i++) {
-            if (typeof binding.parameters[i] == "string") {
-                var name = binding.parameters[i];
-                binding.parameters[i] = {
-                    name: name,
-                    validator: function () { return true; }
-                };
-            }
-        }
-
+    RegBinding: function (binding) {
         this._bindings[binding.name] = binding;
     },
 
@@ -163,3 +120,4 @@ JsfIoc.prototype = {
 };
 
 var ioc = new JsfIoc();
+
