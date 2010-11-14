@@ -72,7 +72,7 @@ describe("JsfIoc", function () {
                 sut = new JsfIoc();
 
                 sut.Register("_foo").withConstructor(Foo).withParameters(
-                    
+
                     sut.Parameter("_parameter").withValidator(
                         function (value) {
                             return typeof (value) == "number";
@@ -189,6 +189,12 @@ describe("JsfIoc", function () {
                         var foo = sut.Load("_foo", otherStuff[i]);
                     }).toThrow("Invalid parameter #1 passed to _foo.");
                 }
+            });
+
+            it("a default value is undefined", function () {
+
+                var foo = sut.Load("_foo");
+                expect(foo._parameter).not.toBeDefined();
             });
         });
     });

@@ -292,7 +292,7 @@ JsfIoc.prototype = {
     },
     _SetParameterToObject: function (binding, parameter, target, value, index) {
 
-        if (!parameter.validator(value)) {
+        if (typeof(value) !== "undefined" && !parameter.validator(value)) {
             throw new Error("Invalid parameter #" + (index + 1) + " passed to " + binding._name + ".");
         }
 
@@ -323,13 +323,13 @@ JsfParameter.prototype = {
         ///	<returns type="JsfParameter" />
         this.defaultValue = value;
     },
-    asSingleJQueryElement : function() {
+    asSingleJQueryElement: function () {
         ///	<returns type="JsfParameter" />
 
-        this.validator =function (value) {
+        this.validator = function (value) {
 
-            return typeof(jQuery) != "undefined" &&
-                    (value instanceof jQuery) && 
+            return typeof (jQuery) != "undefined" &&
+                    (value instanceof jQuery) &&
                     (value.length == 1);
         }
     }
