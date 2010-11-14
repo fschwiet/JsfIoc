@@ -1,7 +1,7 @@
 
 $src = @( gi "license.txt" );
 $testutil = @( gi "license.txt" );
-$tests = @();
+$tests = @( gi "license.txt" );
 
 switch -w (gci .\src *.js -rec) {
         "*.tests.js" { $tests = $tests + $_ }
@@ -23,5 +23,12 @@ switch -w (gci .\testutil *.js -rec) {
 rm .\build -recurse
 $null = mkdir .\build
 
-$src | % { , ("// " + $_.name), @(get-content $_.fullname) } | set-content .\build\JsfIoc.js
-$testutil | % { , ("// " + $_.name), @(get-content $_.fullname) } | set-content .\build\JsfIoc.testutil.js
+function writeFilesTo($files, $target) {
+
+    $files | % { , ("// " + $_.name), @(get-content $_.fullname) } | set-content $target
+}
+
+writeFilesTo $src .\build\JsfIoc.js
+writeFilesTo $testutil .\build\JsfIoc.testutil.js
+writeFilesTo $tests .\build\JsfIoc.tests.js
+

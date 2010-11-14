@@ -44,9 +44,9 @@ JsfIoc.prototype = {
             }
         }
         else {
-            for (var i = 0; i < binding.parameters.length; i++) {
-                this._SetParameterToObject(binding, binding.parameters[i], result, arguments[1 + i], i);
-            }
+            var values = Array.prototype.slice.call(arguments, 1); // all arguments after the first
+
+            this._SetParametersToObject(binding, result, values)
         }
 
         for (var i = 0; i < binding.eventSource.length; i++) {
@@ -110,14 +110,65 @@ JsfIoc.prototype = {
             }
         }
     },
+    _SetParametersToObject: function(binding, target, values) {
+        for (var i = 0; i < binding.parameters.length; i++) {
+            this._SetParameterToObject(binding, binding.parameters[i], target, values[i], i);
+        }
+    },
     _SetParameterToObject: function (binding, parameter, target, value, index) {
+
         if (!parameter.validator(value)) {
             throw new Error("Invalid parameter #" + (index + 1) + " passed to " + binding.name + ".");
         }
 
-        target[parameter.name] = value;
+        if (typeof(value) === "undefined") {
+            if (typeof(parameter.defaultValue) !== "undefined") {
+                target[parameter.name] = parameter.defaultValue;
+            }
+        } else {
+            target[parameter.name] = value;
+        }
     }
 };
 
+function JsfParameter(name) {
+    this.name = name;
+    this.validator = function () { return true; };
+
+    ExtendAsFluent.PrototypeOf(JsfParameter);
+}
+
+JsfParameter.prototype = {
+    constructor: JsfParameter,
+    withValidator: function (value) {
+        ///	<returns type="JsfParameter" />
+        this.validator = value;
+    },
+    withDefault: function (value) {
+        ///	<returns type="JsfParameter" />
+        this.defaultValue = value;
+    },
+    asSingleJQueryElement : function() {
+        ///	<returns type="JsfParameter" />
+
+        this.validator =function (value) {
+
+            return typeof(jQuery) != "undefined" &&
+                    (value instanceof jQuery) && 
+                    (value.length == 1);
+        }
+    }
+}
+
+JsfIoc.prototype.Parameter = function (name) {
+    ///	<returns type="JsfParameter" />
+    return new JsfParameter(name);
+}
+
+
+
 var ioc = new JsfIoc();
+
+
+
 

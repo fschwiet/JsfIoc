@@ -48,10 +48,9 @@ FakeJsfIoc.prototype = {
             result[dependency] = this.LoadTestDouble(dependency);
         }
 
-        for (var i = 0; i < binding.parameters.length; i++) {
-            var parameter = binding.parameters[i];
-            result[parameter.name] = arguments[1 + i];
-        }
+        var parameterValues = Array.prototype.slice.call(arguments, 1); // all arguments after the first
+
+        this._ioc._SetParametersToObject(binding, result, parameterValues);
 
         for (var i = 0; i < binding.eventSource.length; i++) {
 
@@ -67,7 +66,7 @@ FakeJsfIoc.prototype = {
         ///     service name or service constructor
         /// </param>
         /// <returns type="Boolean">return description</returns>
-        
+
         name = nameOrService;
 
         if (typeof (nameOrService) == "function") {
@@ -105,10 +104,10 @@ FakeJsfIoc.prototype = {
         ///     Name or name of arrays.
         /// </param>
         /// <returns type="FakeIoc">call Load</returns>
-        
+
         var that = this;
 
-        if (typeof(includedServices) == "string") {
+        if (typeof (includedServices) == "string") {
             includedServices = [includedServices];
         }
 

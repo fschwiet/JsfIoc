@@ -38,7 +38,7 @@ BindingStart.prototype = {
 	///	</param>
 
         this.container.RegisterInstance(this.name, value);
-    },
+    }
 }
 
 
@@ -67,11 +67,7 @@ Binding.prototype = {
 
         for (var i = 0; i < this.parameters.length; i++) {
             if (typeof this.parameters[i] == "string") {
-                var name = this.parameters[i];
-                this.parameters[i] = {
-                    name: name,
-                    validator: function () { return true; }
-                };
+                this.parameters[i] = JsfIoc.prototype.Parameter(this.parameters[i]);
             }
         }
     },

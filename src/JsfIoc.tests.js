@@ -65,22 +65,18 @@ describe("JsfIoc", function () {
 
         describe("Parameters can have validation", function () {
 
-            function IntegerParameter(name) {
-                return {
-                    name: name,
-                    validator: function (value) {
-                        return typeof (value) == "number";
-                    }
-                };
-            }
-
             var sut;
 
             beforeEach(function () {
 
                 sut = new JsfIoc();
 
-                sut.Register("_foo").withConstructor(Foo).withParameters(IntegerParameter("_parameter"));
+                sut.Register("_foo").withConstructor(Foo).withParameters(
+                    
+                    sut.Parameter("_parameter").withValidator(
+                        function (value) {
+                            return typeof (value) == "number";
+                        }));
             });
 
             it("Configure() accepts valid parameters", function () {
@@ -111,6 +107,88 @@ describe("JsfIoc", function () {
                 expect(function () {
                     sut.Load("_foo", "five");
                 }).toThrow("Invalid parameter #1 passed to _foo.");
+            });
+        });
+
+        describe("Parameters can have a default value", function () {
+
+            var sut;
+            var defaultValue;
+
+            beforeEach(function () {
+
+                defaultValue = "456";
+
+                sut = new JsfIoc();
+
+                sut.Register("_foo").withConstructor(Foo).withParameters(
+                    sut.Parameter("_parameter").withDefault(defaultValue));
+            });
+
+            it("the default is available for the parameter", function () {
+
+                var foo = sut.Load("_foo");
+
+                expect(foo._parameter).toEqual(defaultValue);
+            });
+
+            it("the default is provded by FakeIoc", function () {
+
+                var fakeIoc = new FakeJsfIoc(sut);
+
+                var foo = fakeIoc.Load(Foo);
+
+                expect(foo._parameter).toEqual(defaultValue);
+            });
+
+            it("the default is not validated (not a requirement, but a warning)", function () {
+            });
+        });
+
+        describe("Parameter can have validation that the parameter is a jQuery element containing 1 DOM element", function () {
+
+            function someJQueryElement() {
+                return $("<div></div>");
+            }
+
+            var sut;
+
+            beforeEach(function () {
+
+                sut = new JsfIoc();
+
+                sut.Register("_foo").withConstructor(Foo).withParameters(
+                    sut.Parameter("_parameter").asSingleJQueryElement());
+            });
+
+            it("a single jQuery collections is valid", function () {
+
+                var expected = someJQueryElement();
+
+                var foo = sut.Load("_foo", expected);
+
+                expect(foo._parameter).toBe(expected);
+            });
+
+            it("multiple jQuery elements fail validation", function () {
+
+                expect(function () {
+
+                    var foo = sut.Load("_foo", $("<div></div><div></div>"));
+                }).toThrow("Invalid parameter #1 passed to _foo.");
+            });
+
+            it("other stuff is considered invalid", function () {
+
+                var otherStuff = [null, 1, [1], {}];
+
+                for (var i = 0; i < otherStuff.length; i++) {
+
+                    expect(function () {
+
+                        var foo = sut.Load("_foo", otherStuff[i]);
+                    }).toThrow("Invalid parameter #1 passed to _foo.");
+                }
             });
         });
     });
@@ -166,7 +244,7 @@ describe("JsfIoc", function () {
 
             sut = new JsfIoc();
         });
-        
+
         describe("invalid service references are identified", function () {
 
             it("for Load()", function () {
@@ -256,7 +334,7 @@ describe("JsfIoc", function () {
         describe("Listeners can be called directly with the ioc container", function () {
 
             it("with parameters", function () {
-            
+
                 spyOn(Listener.prototype, "OnInitialize");
 
                 sut.NotifyEvent("Initialize", [1, 2, 3]);
