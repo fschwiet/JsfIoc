@@ -16,7 +16,7 @@ describe("BindingStart", function () {
 
         var sut = new BindingStart(ioc, "someServiceName");
 
-        expect(sut.name).toEqual("someServiceName");
+        expect(sut._name).toEqual("someServiceName");
     });
 
     it("has a fluent interface", function () {
@@ -33,7 +33,7 @@ describe("BindingStart", function () {
         var binding = new BindingStart(ioc, "someServiceName").withConstructor(Foo);
 
         expect(ioc.RegBinding).toHaveBeenCalledWith(binding);
-        expect(binding.name).toEqual("someServiceName");
+        expect(binding._name).toEqual("someServiceName");
         expect(binding.service).toEqual(Foo);
     });
 
@@ -59,7 +59,7 @@ describe("Binding", function () {
 
         var binding = new Binding("serviceName");
 
-        expect(binding.name).toEqual("serviceName");
+        expect(binding._name).toEqual("serviceName");
     });
 
     it("has a fluent interface", function () {
@@ -73,35 +73,35 @@ describe("Binding", function () {
 
         var binding = new Binding("serviceName").withDependencies(1, 2, 3);
 
-        expect(binding.requires).toEqual([1, 2, 3]);
+        expect(binding._requires).toEqual([1, 2, 3]);
     });
 
     it("can specify parameters", function () {
 
         var binding = new Binding("serviceName").withParameters(1, 2, 3);
 
-        expect(binding.parameters).toEqual([1, 2, 3]);
+        expect(binding._parameters).toEqual([1, 2, 3]);
     });
 
     it("can load component as a singleton", function () {
 
         var binding = new Binding("serviceName").asSingleton();
 
-        expect(binding.singleton).toEqual(true);
+        expect(binding._singleton).toEqual(true);
     });
 
     it("can specify events sourced from this component", function () {
 
         var binding = new Binding("serviceName").sendingEvents(1, 2, 3);
 
-        expect(binding.eventSource).toEqual([1, 2, 3]);
+        expect(binding._eventSource).toEqual([1, 2, 3]);
     })
 
     it("can specify events received by this component", function () {
 
         var binding = new Binding("serviceName").receivingEvents(1, 2, 3);
 
-        expect(binding.eventListener).toEqual([1, 2, 3]);
+        expect(binding._eventListener).toEqual([1, 2, 3]);
     })
 
     describe("has a friendly name", function () {

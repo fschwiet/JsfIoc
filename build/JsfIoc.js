@@ -30,8 +30,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 function BindingStart(ioc, name) {
-    this.container = ioc;
-    this.name = name;
+    this._container = ioc;
+    this._name = name;
 
     ExtendAsFluent.PrototypeOf(BindingStart);
 }
@@ -49,10 +49,10 @@ BindingStart.prototype = {
 	///	</param>
 	///	<returns type="Binding" />
 
-        var binding = new Binding(this.name);
+        var binding = new Binding(this._name);
         binding.service = value;
 
-        this.container.RegBinding(binding);
+        this._container.RegBinding(binding);
 
         return binding;
     },
@@ -65,18 +65,18 @@ BindingStart.prototype = {
     ///     An instance of the component
 	///	</param>
 
-        this.container.RegisterInstance(this.name, value);
+        this._container.RegisterInstance(this._name, value);
     }
 }
 
 
 function Binding(name) {
-    this.name = name;
-    this.requires = [];
-    this.parameters = [];
-    this.singleton = false;
-    this.eventSource = [];
-    this.eventListener = [];
+    this._name = name;
+    this._requires = [];
+    this._parameters = [];
+    this._singleton = false;
+    this._eventSource = [];
+    this._eventListener = [];
 
     ExtendAsFluent.PrototypeOf(Binding);
 }
@@ -86,33 +86,33 @@ Binding.prototype = {
 
     withDependencies: function() {
     	///	<returns type="Binding" />
-        Binding.AppendArgsToMember(arguments, this, "requires");
+        Binding.AppendArgsToMember(arguments, this, "_requires");
     },
 
     withParameters: function() {
 	    ///	<returns type="Binding" />
-        Binding.AppendArgsToMember(arguments, this, "parameters");
+        Binding.AppendArgsToMember(arguments, this, "_parameters");
 
-        for (var i = 0; i < this.parameters.length; i++) {
-            if (typeof this.parameters[i] == "string") {
-                this.parameters[i] = JsfIoc.prototype.Parameter(this.parameters[i]);
+        for (var i = 0; i < this._parameters.length; i++) {
+            if (typeof this._parameters[i] == "string") {
+                this._parameters[i] = JsfIoc.prototype.Parameter(this._parameters[i]);
             }
         }
     },
 
     asSingleton: function() {
 	    ///	<returns type="Binding" />
-        this.singleton = true;
+        this._singleton = true;
     },
 
     sendingEvents: function() {
 	    ///	<returns type="Binding" />
-        Binding.AppendArgsToMember(arguments, this, "eventSource");
+        Binding.AppendArgsToMember(arguments, this, "_eventSource");
     },
 
     receivingEvents: function() {
 	    ///	<returns type="Binding" />
-        Binding.AppendArgsToMember(arguments, this, "eventListener");
+        Binding.AppendArgsToMember(arguments, this, "_eventListener");
     },
 
     GetFriendlyName: function () {
@@ -124,7 +124,7 @@ Binding.prototype = {
             result = result.slice("function ".length);
 
         if (Binding.WhitespaceRegex.test(result))
-            return this.name;
+            return this._name;
 
         return result;
     }
@@ -188,7 +188,7 @@ JsfIoc.prototype = {
     },
 
     RegBinding: function (binding) {
-        this._bindings[binding.name] = binding;
+        this._bindings[binding._name] = binding;
     },
 
     RegisterInstance: function (name, instance) {
@@ -207,15 +207,15 @@ JsfIoc.prototype = {
 
         result = new binding.service;
 
-        for (var i = 0; i < binding.requires.length; i++) {
-            var dependency = binding.requires[i];
+        for (var i = 0; i < binding._requires.length; i++) {
+            var dependency = binding._requires[i];
             result[dependency] = this.Load(dependency);
         }
 
         if (binding.boundParameters) {
-            for (var i = 0; i < binding.parameters.length; i++) {
-                var parameter = binding.parameters[i];
-                result[parameter.name] = binding.boundParameters[parameter.name];
+            for (var i = 0; i < binding._parameters.length; i++) {
+                var parameter = binding._parameters[i];
+                result[parameter._name] = binding.boundParameters[parameter._name];
             }
         }
         else {
@@ -224,17 +224,17 @@ JsfIoc.prototype = {
             this._SetParametersToObject(binding, result, values)
         }
 
-        for (var i = 0; i < binding.eventSource.length; i++) {
+        for (var i = 0; i < binding._eventSource.length; i++) {
 
             (function (event, that) {
 
                 result["_notify" + event] = function () {
                     that.NotifyEvent(event, arguments);
                 };
-            })(binding.eventSource[i], this);
+            })(binding._eventSource[i], this);
         }
 
-        if (binding.singleton) {
+        if (binding._singleton) {
             this._singletons[name] = result;
         }
 
@@ -246,8 +246,8 @@ JsfIoc.prototype = {
 
         var boundParameters = {};
 
-        for (var i = 0; i < binding.parameters.length; i++) {
-            this._SetParameterToObject(binding, binding.parameters[i], boundParameters, arguments[1 + i], i);
+        for (var i = 0; i < binding._parameters.length; i++) {
+            this._SetParameterToObject(binding, binding._parameters[i], boundParameters, arguments[1 + i], i);
         }
 
         binding.boundParameters = boundParameters;
@@ -269,7 +269,7 @@ JsfIoc.prototype = {
             if (!this._bindings.hasOwnProperty(bindingName))
                 continue;
 
-            var events = this._bindings[bindingName].eventListener;
+            var events = this._bindings[bindingName]._eventListener;
 
             if (events) {
 
@@ -286,28 +286,28 @@ JsfIoc.prototype = {
         }
     },
     _SetParametersToObject: function(binding, target, values) {
-        for (var i = 0; i < binding.parameters.length; i++) {
-            this._SetParameterToObject(binding, binding.parameters[i], target, values[i], i);
+        for (var i = 0; i < binding._parameters.length; i++) {
+            this._SetParameterToObject(binding, binding._parameters[i], target, values[i], i);
         }
     },
     _SetParameterToObject: function (binding, parameter, target, value, index) {
 
         if (!parameter.validator(value)) {
-            throw new Error("Invalid parameter #" + (index + 1) + " passed to " + binding.name + ".");
+            throw new Error("Invalid parameter #" + (index + 1) + " passed to " + binding._name + ".");
         }
 
         if (typeof(value) === "undefined") {
             if (typeof(parameter.defaultValue) !== "undefined") {
-                target[parameter.name] = parameter.defaultValue;
+                target[parameter._name] = parameter.defaultValue;
             }
         } else {
-            target[parameter.name] = value;
+            target[parameter._name] = value;
         }
     }
 };
 
 function JsfParameter(name) {
-    this.name = name;
+    this._name = name;
     this.validator = function () { return true; };
 
     ExtendAsFluent.PrototypeOf(JsfParameter);

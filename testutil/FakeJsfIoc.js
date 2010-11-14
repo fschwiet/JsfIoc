@@ -34,9 +34,9 @@ FakeJsfIoc.prototype = {
         var result = new binding.service;
 
         dependencyLoadingLoop:
-        for (var i = 0; i < binding.requires.length; i++) {
+        for (var i = 0; i < binding._requires.length; i++) {
 
-            var dependency = binding.requires[i];
+            var dependency = binding._requires[i];
 
             for (var includeIndex = 0; includeIndex < this._includedServices.length; includeIndex++) {
                 if (dependency == this._includedServices[includeIndex]) {
@@ -52,10 +52,10 @@ FakeJsfIoc.prototype = {
 
         this._ioc._SetParametersToObject(binding, result, parameterValues);
 
-        for (var i = 0; i < binding.eventSource.length; i++) {
+        for (var i = 0; i < binding._eventSource.length; i++) {
 
-            result["_notify" + binding.eventSource[i]] =
-                this.TestDoublePolicy(binding.GetFriendlyName(), "_notify" + binding.eventSource[i]);
+            result["_notify" + binding._eventSource[i]] =
+                this.TestDoublePolicy(binding.GetFriendlyName(), "_notify" + binding._eventSource[i]);
         }
 
         return result;
@@ -73,7 +73,7 @@ FakeJsfIoc.prototype = {
 
             var service = nameOrService;
 
-            name = this.GetBindingByClass(service).name;
+            name = this.GetBindingByClass(service)._name;
         }
 
         if (this._preloadedDependencies[name]) {

@@ -38,11 +38,11 @@ DependencyGrapher.prototype = {
 
             var binding = bindings[name];
 
-            if (binding && binding.requires) {
-                for (var i = 0; i < binding.requires.length; i++) {
+            if (binding && binding._requires) {
+                for (var i = 0; i < binding._requires.length; i++) {
                     for (var j = 0; j < servicesLeft.length; j++) {
 
-                        if (servicesLeft[j] == binding.requires[i]) {
+                        if (servicesLeft[j] == binding._requires[i]) {
                             servicesLeft.splice(j, 1);
                             break;
                         }
@@ -69,7 +69,7 @@ DependencyGrapher.prototype = {
 
         if (binding) {
 
-            var requires = binding.requires;
+            var requires = binding._requires;
 
             if (requires) for (var i = 0; i < requires.length; i++) {
 
@@ -124,8 +124,8 @@ DependencyGrapher.prototype = {
 
             var requires = [];
 
-            if (nodeBinding && nodeBinding.requires) {
-                requires = nodeBinding.requires.slice(0);
+            if (nodeBinding && nodeBinding._requires) {
+                requires = nodeBinding._requires.slice(0);
             }
 
             this.VisitDependencies(visitor, requires, node, depth + 1);

@@ -18,10 +18,10 @@ GraphVizFormatting.prototype = {
 
         var eventListenerString = "";
 
-        if (binding.eventListener.length > 0) {
+        if (binding._eventListener.length > 0) {
             eventListenerString = " | \\>";
 
-            var events = binding.eventListener.slice();
+            var events = binding._eventListener.slice();
 
             events.sort();
 
@@ -36,10 +36,10 @@ GraphVizFormatting.prototype = {
 
         var eventSourceString = "";
 
-        if (binding.eventSource.length > 0) {
+        if (binding._eventSource.length > 0) {
             eventSourceString = " |";
 
-            var events = binding.eventSource.slice();
+            var events = binding._eventSource.slice();
 
             events.sort();
 
@@ -56,9 +56,9 @@ GraphVizFormatting.prototype = {
 
         var relationString = "";
 
-        for (var i = 0; i < binding.requires.length; i++) {
+        for (var i = 0; i < binding._requires.length; i++) {
 
-            var targetName = binding.requires[i];
+            var targetName = binding._requires[i];
 
             if (this._ioc._bindings[targetName]) {
                 targetName = this._ioc._bindings[targetName].GetFriendlyName();

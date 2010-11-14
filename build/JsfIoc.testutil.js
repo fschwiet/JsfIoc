@@ -66,11 +66,11 @@ DependencyGrapher.prototype = {
 
             var binding = bindings[name];
 
-            if (binding && binding.requires) {
-                for (var i = 0; i < binding.requires.length; i++) {
+            if (binding && binding._requires) {
+                for (var i = 0; i < binding._requires.length; i++) {
                     for (var j = 0; j < servicesLeft.length; j++) {
 
-                        if (servicesLeft[j] == binding.requires[i]) {
+                        if (servicesLeft[j] == binding._requires[i]) {
                             servicesLeft.splice(j, 1);
                             break;
                         }
@@ -97,7 +97,7 @@ DependencyGrapher.prototype = {
 
         if (binding) {
 
-            var requires = binding.requires;
+            var requires = binding._requires;
 
             if (requires) for (var i = 0; i < requires.length; i++) {
 
@@ -152,8 +152,8 @@ DependencyGrapher.prototype = {
 
             var requires = [];
 
-            if (nodeBinding && nodeBinding.requires) {
-                requires = nodeBinding.requires.slice(0);
+            if (nodeBinding && nodeBinding._requires) {
+                requires = nodeBinding._requires.slice(0);
             }
 
             this.VisitDependencies(visitor, requires, node, depth + 1);
@@ -208,9 +208,9 @@ FakeJsfIoc.prototype = {
         var result = new binding.service;
 
         dependencyLoadingLoop:
-        for (var i = 0; i < binding.requires.length; i++) {
+        for (var i = 0; i < binding._requires.length; i++) {
 
-            var dependency = binding.requires[i];
+            var dependency = binding._requires[i];
 
             for (var includeIndex = 0; includeIndex < this._includedServices.length; includeIndex++) {
                 if (dependency == this._includedServices[includeIndex]) {
@@ -226,10 +226,10 @@ FakeJsfIoc.prototype = {
 
         this._ioc._SetParametersToObject(binding, result, parameterValues);
 
-        for (var i = 0; i < binding.eventSource.length; i++) {
+        for (var i = 0; i < binding._eventSource.length; i++) {
 
-            result["_notify" + binding.eventSource[i]] =
-                this.TestDoublePolicy(binding.GetFriendlyName(), "_notify" + binding.eventSource[i]);
+            result["_notify" + binding._eventSource[i]] =
+                this.TestDoublePolicy(binding.GetFriendlyName(), "_notify" + binding._eventSource[i]);
         }
 
         return result;
@@ -247,7 +247,7 @@ FakeJsfIoc.prototype = {
 
             var service = nameOrService;
 
-            name = this.GetBindingByClass(service).name;
+            name = this.GetBindingByClass(service)._name;
         }
 
         if (this._preloadedDependencies[name]) {
@@ -368,10 +368,10 @@ GraphVizFormatting.prototype = {
 
         var eventListenerString = "";
 
-        if (binding.eventListener.length > 0) {
+        if (binding._eventListener.length > 0) {
             eventListenerString = " | \\>";
 
-            var events = binding.eventListener.slice();
+            var events = binding._eventListener.slice();
 
             events.sort();
 
@@ -386,10 +386,10 @@ GraphVizFormatting.prototype = {
 
         var eventSourceString = "";
 
-        if (binding.eventSource.length > 0) {
+        if (binding._eventSource.length > 0) {
             eventSourceString = " |";
 
-            var events = binding.eventSource.slice();
+            var events = binding._eventSource.slice();
 
             events.sort();
 
@@ -406,9 +406,9 @@ GraphVizFormatting.prototype = {
 
         var relationString = "";
 
-        for (var i = 0; i < binding.requires.length; i++) {
+        for (var i = 0; i < binding._requires.length; i++) {
 
-            var targetName = binding.requires[i];
+            var targetName = binding._requires[i];
 
             if (this._ioc._bindings[targetName]) {
                 targetName = this._ioc._bindings[targetName].GetFriendlyName();
