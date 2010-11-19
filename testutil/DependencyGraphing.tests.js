@@ -36,7 +36,9 @@ describe("dependency graphing", function () {
     window.GetSampleIoc = function () {
         var ioc = new JsfIoc();
 
-        ioc.Register("Foo").withConstructor(Foo);
+        ioc.Register("Foo").withConstructor(Foo)
+            .receivingEvents("Initialize", "Go", "Stop", "Record", "Rewind", "Eject", "Alt-Tab", "Tune")
+            .receivingEvents("Initialize", "Go", "Stop", "Record", "Rewind", "Eject", "Alt-Tab", "Tune");
         ioc.Register("Bar").withConstructor(Bar);
         ioc.Register("Baz").withInstance(new Baz());
 
