@@ -1,6 +1,7 @@
 ---
-title: JsfIoc
+title: "JsfIoc"
 ---
+
 
 ## Registering a minimal service
 
