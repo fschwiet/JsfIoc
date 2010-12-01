@@ -1,6 +1,8 @@
 ---
-title: "JsfIoc"
+title: JsfIoc
 ---
+
+#%describe ("JsfIoc", function() {
 
 
 ## Registering a minimal service
@@ -10,6 +12,7 @@ its constructor or an instance.  Registering a component by its constructor is p
 Registering by instance is a means to pull in components that do not use the ioc container.  JsfIoc declares a global instance of JsfIoc named "ioc".  You can use
 it, or create your own with new JsfIoc().
 
+#%  it("$$", function() {
 {% highlight javascript %}
 
     // component definition by constructor
@@ -254,3 +257,4 @@ receives the notification.
 
 todo...
 
+#%});
