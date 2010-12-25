@@ -221,16 +221,9 @@ constructor as a singleton.
 Events provide a means to do one-to-many communication, or to break
 dependency cycles.
 A component may be registered as a source or listener for some number of events.
-Event sources have a method added "_notify&lt;EVENT&gt;", when that method
-is called all listeners are called.
-Parameters passed to the notify function are passed to all the listeners.
-Event listeners should have a method "On&lt;EVENT&gt;" which will then
-receive all the events.
-Support for events is a bit crude, it generally makes sense of
-listeners to be singletons.
-If they're not singletons, a new instance is created for each listener
-each time the event is triggered, only that most recent instance
-receives the notification.
+Event sources call _notify<i>EVENT</i> send the event to all listeners.  The _notify<i>EVENT</i> method is added immediately after construction.  Parameters passed to the notify function are passed to all the listeners.
+Event listeners must define an member method On<i>EVENT</i>.  This method is called whenever and event is sent.
+Support for events is a bit crude, it generally makes sense of listeners to be singletons.  If they're not singletons, a new instance is created for each listener each time the event is triggered, only that most recent instance receives the notification.
 
 {% highlight javascript %}
 
