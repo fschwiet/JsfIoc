@@ -4,7 +4,6 @@ build/
 _ReSharper.*
 *.ReSharper.user
 *.resharper.user
-*.sln
 *.suo
 *.csproj
 *.csproj.*
