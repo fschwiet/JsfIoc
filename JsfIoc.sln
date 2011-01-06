@@ -7,11 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\Binding.tests.js = src\Binding.tests.js
 		build.ps1 = build.ps1
 		BundleTestRunner.html = BundleTestRunner.html
-		src\ExtendAsFluent.js = src\ExtendAsFluent.js
-		src\ExtendAsFluent.tests.js = src\ExtendAsFluent.tests.js
-		Intellisense.js = Intellisense.js
-		src\JsfIoc.js = src\JsfIoc.js
-		src\JsfIoc.tests.js = src\JsfIoc.tests.js
 		LICENSE.txt = LICENSE.txt
 		README.txt = README.txt
 		TestRunner.html = TestRunner.html
@@ -41,6 +36,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testutil", "testutil", "{E2
 		testutil\HtmlEncode.js = testutil\HtmlEncode.js
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{C6EDB028-85F6-442B-BC26-F30905FF0057}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Jasmine", "Jasmine", "{213AF1B9-374C-4DAC-82C6-4DE1DC3D6F49}"
+	ProjectSection(SolutionItems) = preProject
+		lib\jasmine-0.11.1\jasmine-html.js = lib\jasmine-0.11.1\jasmine-html.js
+		lib\jasmine-0.11.1\jasmine.css = lib\jasmine-0.11.1\jasmine.css
+		lib\jasmine-0.11.1\jasmine.js = lib\jasmine-0.11.1\jasmine.js
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,5 +52,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C2D9EBEA-4530-48D5-BB6B-47B240FC1D9B} = {435D0BB5-A59C-4E1B-9EB6-EAC3D3691907}
 		{E21487BE-CE56-438E-B1CA-1A58274D03C8} = {435D0BB5-A59C-4E1B-9EB6-EAC3D3691907}
+		{C6EDB028-85F6-442B-BC26-F30905FF0057} = {435D0BB5-A59C-4E1B-9EB6-EAC3D3691907}
+		{213AF1B9-374C-4DAC-82C6-4DE1DC3D6F49} = {C6EDB028-85F6-442B-BC26-F30905FF0057}
 	EndGlobalSection
 EndGlobal
