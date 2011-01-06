@@ -2,6 +2,7 @@
 function JsfIoc() {
     this._bindings = [];
     this._singletons = [];
+    this._trace = new JsfTrace(this);
 }
 
 JsfIoc.prototype = {
@@ -59,6 +60,8 @@ JsfIoc.prototype = {
             })(binding._eventSource[i], this);
         }
 
+        this._trace.Decorate(binding, result);
+
         if (binding._singleton) {
             this._singletons[name] = result;
         }
@@ -110,19 +113,22 @@ JsfIoc.prototype = {
             }
         }
     },
-    _SetParametersToObject: function(binding, target, values) {
+    Trace: function () {
+        return this._trace.Trace.apply(this._trace, arguments);
+    },
+    _SetParametersToObject: function (binding, target, values) {
         for (var i = 0; i < binding._parameters.length; i++) {
             this._SetParameterToObject(binding, binding._parameters[i], target, values[i], i);
         }
     },
     _SetParameterToObject: function (binding, parameter, target, value, index) {
 
-        if (typeof(value) !== "undefined" && !parameter.validator(value)) {
+        if (typeof (value) !== "undefined" && !parameter.validator(value)) {
             throw new Error("Invalid parameter #" + (index + 1) + " passed to " + binding._name + ".");
         }
 
-        if (typeof(value) === "undefined") {
-            if (typeof(parameter.defaultValue) !== "undefined") {
+        if (typeof (value) === "undefined") {
+            if (typeof (parameter.defaultValue) !== "undefined") {
                 target[parameter._name] = parameter.defaultValue;
             }
         } else {
@@ -166,8 +172,6 @@ JsfIoc.prototype.Parameter = function (name) {
 }
 
 
-
-var ioc = new JsfIoc();
 
 
 

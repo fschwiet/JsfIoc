@@ -357,4 +357,34 @@ describe("JsfIoc", function () {
             });
         });
     });
+
+    describe("Trace", function () {
+        it("all trace calls are passed to a JsfTrace object", function () {
+
+            var expectedParameter1 = 123;
+            var expectedParameter2 = "abc";
+            var expectedReturnValue = "123abc";
+
+            spyOn(JsfTrace.prototype, "Trace").andReturn(expectedReturnValue);
+
+            var sut = new JsfIoc();
+
+            expect(sut.Trace(expectedParameter1, expectedParameter2)).toEqual(expectedReturnValue);
+
+            expect(JsfTrace.prototype.Trace).toHaveBeenCalledWith(expectedParameter1, expectedParameter2);
+            expect(JsfTrace.prototype.Trace.mostRecentCall.object).toEqual(jasmine.any(JsfTrace));
+        });
+
+        it("all trace calls are passed to the same JsfTrace object", function () {
+
+            spyOn(JsfTrace.prototype, "Trace");
+
+            var sut = new JsfIoc();
+
+            sut.Trace();
+            sut.Trace();
+
+            expect(JsfTrace.prototype.Trace.argsForCall[0].object).toEqual(JsfTrace.prototype.Trace.argsForCall[1].object);
+        });
+    });
 });
