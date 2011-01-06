@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C2D9EBEA-453
 		Intellisense.js = Intellisense.js
 		src\JsfIoc.js = src\JsfIoc.js
 		src\JsfIoc.tests.js = src\JsfIoc.tests.js
+		src\JsfTrace.js = src\JsfTrace.js
+		src\JsfTrace.tests.js = src\JsfTrace.tests.js
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testutil", "testutil", "{E21487BE-CE56-438E-B1CA-1A58274D03C8}"
