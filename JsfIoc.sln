@@ -23,6 +23,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C2D9EBEA-453
 		src\JsfIoc.tests.js = src\JsfIoc.tests.js
 		src\JsfTrace.js = src\JsfTrace.js
 		src\JsfTrace.tests.js = src\JsfTrace.tests.js
+		src\Global.js = src\Global.js
+		src\Global.tests.js = src\Global.tests.js
+		src\FunctionRedefinition.js = src\FunctionRedefinition.js
+		src\FunctionRedefinition.tests.js = src\FunctionRedefinition.tests.js
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testutil", "testutil", "{E21487BE-CE56-438E-B1CA-1A58274D03C8}"
@@ -46,13 +50,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Jasmine", "Jasmine", "{213A
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C2D9EBEA-4530-48D5-BB6B-47B240FC1D9B} = {435D0BB5-A59C-4E1B-9EB6-EAC3D3691907}
 		{E21487BE-CE56-438E-B1CA-1A58274D03C8} = {435D0BB5-A59C-4E1B-9EB6-EAC3D3691907}
 		{C6EDB028-85F6-442B-BC26-F30905FF0057} = {435D0BB5-A59C-4E1B-9EB6-EAC3D3691907}
 		{213AF1B9-374C-4DAC-82C6-4DE1DC3D6F49} = {C6EDB028-85F6-442B-BC26-F30905FF0057}
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

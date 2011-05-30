@@ -1,14 +1,37 @@
 ﻿/// <reference path="..\Intellisense.js"/>
+function Foo() {
+    };
 
+function Bar() {
+    };
+
+function Foo2() {
+    	this.dep++;
+    };
+
+function Source() {
+}
+
+function Listener() {
+};
+
+function MultiSource() {
+}
+
+
+
+Listener.prototype.OnInitialize = function () { }
 
 describe("JsfIoc", function () {
 
-    function Foo() {
-    };
+            
+    var dep=2;
 
-    function Bar() {
-    };
-
+	var originalFoo=Foo;
+	var originalBar=Bar;
+	
+	afterEach(function(){ Foo=originalFoo;Bar=originalBar;Foo.prototype.constructor=Foo;Bar.prototype.constructor=Bar});
+		
     it("Register and load a minimal service", function () {
 
         var sut = new JsfIoc();
@@ -19,6 +42,7 @@ describe("JsfIoc", function () {
 
         expect(result instanceof Foo).toBeTruthy();
     });
+
 
     it("Register and load a service with a dependency", function () {
 
@@ -33,7 +57,79 @@ describe("JsfIoc", function () {
         expect(result._bar instanceof Bar).toBeTruthy();
     });
 
+
+    it("Load is not longer necesary", function () {
+
+        var sut = new JsfIoc();
+
+        sut.Register("_bar").withConstructor(Bar);
+
+        sut.Register("_foo").withConstructor(Foo).withDependencies("_bar");
+
+        var result = new Foo();
+
+        expect(result._bar instanceof Bar).toBeTruthy();
+    });
+	
+		
+				
+    it("Register and load a minimal service as name,scope", function () {
+
+ 
+        var sut = new JsfIoc();
+        var scoped={};
+        scoped.Foo=function(){};
+
+        sut.Register("_foo").withScopedConstructor('Foo',scoped);
+
+        var result = sut.Load("_foo");
+
+        expect(result instanceof scoped.Foo).toBeTruthy();
+    });
+
+    it("Register and load a service with a dependency as name,scope", function () {
+
+        var sut = new JsfIoc();
+
+        sut.Register("_bar").withScopedConstructor('Bar',getGlobal());
+
+        sut.Register("_foo").withScopedConstructor('Foo',getGlobal()).withDependencies("_bar");
+
+        var result = sut.Load("_foo");
+
+        expect(result._bar instanceof Bar).toBeTruthy();
+    });
+
+    it("Makes dependencies available at construction time ", function () {
+
+        var sut = new JsfIoc();
+
+        sut.Register("dep").withInstance(dep);
+
+        sut.Register("_foo2").withScopedConstructor('Foo2',getGlobal()).withDependencies("dep");
+
+        var result = new Foo2();
+
+        expect(result.dep).toEqual(3);
+    });
+
+
+    it("Registers with different styles must be compatible", function () {
+
+        var sut = new JsfIoc();
+
+        sut.Register("_bar").withScopedConstructor('Bar',getGlobal());
+
+        sut.Register("_foo").withConstructor(Foo).withDependencies("_bar");
+
+        var result = sut.Load("_foo");
+
+        expect(result._bar instanceof Bar).toBeTruthy();
+    });
+
+
     describe("services can have parameters to be determined later", function () {
+
 
         it("The parameters can be specified when a service is Load()d", function () {
 
@@ -79,7 +175,7 @@ describe("JsfIoc", function () {
                         }));
             });
 
-            it("Configure() accepts valid parameters", function () {
+            it("Configure()	 accepts valid parameters", function () {
 
                 sut.Configure("_foo", 5);
 
@@ -241,6 +337,49 @@ describe("JsfIoc", function () {
 
         expect(result).toBe(instance);
     });
+    
+    
+    it("A function can be registered", function () {
+
+        var sut = new JsfIoc();
+
+        sut.Register("_foo").withFunction('Foo');
+
+        var result = sut.Load("_foo");
+
+		expect(typeof(result)).toEqual('function');
+		
+		var obj=new result();
+		
+        expect(obj instanceof Foo).toBeTruthy();
+    });
+
+    it("A constructor function can be registered, and constructed objects can have dependecies", function () {
+
+       var sut = new JsfIoc();
+
+        sut.Register("_bar").withConstructor(Bar);
+
+        sut.Register("_foo").withFunction('Foo').withDependencies("_bar");
+
+        var result = new (sut.Load("_foo"))();
+
+        expect(result._bar instanceof Bar).toBeTruthy();
+    });
+    
+    it("A constructor function don't need Load", function () {
+
+       var sut = new JsfIoc();
+
+        sut.Register("_bar").withConstructor(Bar);
+
+        sut.Register("_foo").withFunction('Foo').withDependencies("_bar");
+
+        var result = new Foo();
+
+        expect(result._bar instanceof Bar).toBeTruthy();
+    });
+
 
     describe("Common developer mistakes throw descriptive exceptions", function () {
 
@@ -270,15 +409,11 @@ describe("JsfIoc", function () {
 
     describe("Simple event dispatching", function () {
 
-        function Source() {
-        }
-
-        function Listener() {
-        };
-
-        Listener.prototype.OnInitialize = function () { }
-
+ 
         var sut;
+        var OriginalSource=Source;
+        var OriginalListener=Listener;
+        var OriginalMultiSource=MultiSource;
 
         beforeEach(function () {
 
@@ -287,7 +422,10 @@ describe("JsfIoc", function () {
             sut.Register("_source").withConstructor(Source).sendingEvents("Initialize");
             sut.Register("_listener").withConstructor(Listener).receivingEvents("Initialize");
         });
-
+		
+		afterEach(function(){ Source=OriginalSource;Listener=OriginalListener;Source.prototype.constructor=Source;Listener.prototype.constructor=Listener;MultiSource=OriginalMultiSource;MultiSource.prototype.constructor=MultiSource;});
+        
+                
         describe("The event source uses _notifyEVENTNAME() to notify listeners", function () {
 
             var source;
@@ -325,7 +463,7 @@ describe("JsfIoc", function () {
 
             it("bugfix: _notifyEVENTNAME() should create unique functional scope per _notify over-ride", function () {
 
-                sut.Register("_multisource").withConstructor(Source).sendingEvents("AnotherEvent", "Initialize", "HelloWorld");
+                sut.Register("_multisource").withConstructor(MultiSource).sendingEvents("AnotherEvent", "Initialize", "HelloWorld");
 
                 spyOn(Listener.prototype, "OnInitialize");
 

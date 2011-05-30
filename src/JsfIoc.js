@@ -30,41 +30,18 @@ JsfIoc.prototype = {
             return result;
 
         var binding = this.GetBinding(name, "Load");
+        
+        if (binding._isObject){
+	        result = new binding.service;
+        
+        	if (!binding.boundParameters){
+	            var values = Array.prototype.slice.call(arguments, 1); // all arguments after the first
 
-        result = new binding.service;
-
-        for (var i = 0; i < binding._requires.length; i++) {
-            var dependency = binding._requires[i];
-            result[dependency] = this.Load(dependency);
-        }
-
-        if (binding.boundParameters) {
-            for (var i = 0; i < binding._parameters.length; i++) {
-                var parameter = binding._parameters[i];
-                result[parameter._name] = binding.boundParameters[parameter._name];
-            }
-        }
-        else {
-            var values = Array.prototype.slice.call(arguments, 1); // all arguments after the first
-
-            this._SetParametersToObject(binding, result, values)
-        }
-
-        for (var i = 0; i < binding._eventSource.length; i++) {
-
-            (function (event, that) {
-
-                result["_notify" + event] = function () {
-                    that.NotifyEvent(event, arguments);
-                };
-            })(binding._eventSource[i], this);
-        }
-
-        this._trace.Decorate(binding, result);
-
-        if (binding._singleton) {
-            this._singletons[name] = result;
-        }
+	            this._SetParametersToObject(binding, result, values)
+        	}
+	    }
+	    else
+			result = binding.service;
 
         return result;
     },
@@ -80,6 +57,7 @@ JsfIoc.prototype = {
 
         binding.boundParameters = boundParameters;
     },
+
     GetBinding: function (name, caller) {
 
         var binding = this._bindings[name];
@@ -133,6 +111,39 @@ JsfIoc.prototype = {
             }
         } else {
             target[parameter._name] = value;
+        }
+    },
+    
+    InjectDependencies: function(scope,name){
+
+    	var binding=this.GetBinding(name,"InjectDependencies");
+            
+        for (var i = 0; i < binding._requires.length; i++) {
+            var dependency = binding._requires[i];
+            scope[dependency] = this.Load(dependency);
+        }
+
+        if (binding.boundParameters) {
+            for (var i = 0; i < binding._parameters.length; i++) {
+                var parameter = binding._parameters[i];
+                scope[parameter._name] = binding.boundParameters[parameter._name];
+            }
+        }
+ 
+        for (var i = 0; i < binding._eventSource.length; i++) {
+
+            (function (event, that) {
+
+                scope["_notify" + event] = function () {
+                    that.NotifyEvent(event, arguments);
+                };
+            })(binding._eventSource[i], this);
+        }
+
+        this._trace.Decorate(binding, scope);
+
+        if (binding._singleton) {
+            this._singletons[name] = scope;
         }
     }
 };
