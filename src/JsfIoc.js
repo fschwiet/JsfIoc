@@ -116,7 +116,7 @@ JsfIoc.prototype = {
     
     InjectDependencies: function(scope,name){
 
-    	var binding=this.GetBinding(name,"InjectDependencies");
+    	var binding=this.GetBinding	(name,"InjectDependencies");
             
         for (var i = 0; i < binding._requires.length; i++) {
             var dependency = binding._requires[i];

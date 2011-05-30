@@ -28,7 +28,7 @@ describe("FunctionRedefinition", function() {
 
 		it("Redefines function", function (){
 		
-			RedefineFromObject(RedefinitionTestExample,ioc,'name');
+			RedefineFromObject(RedefinitionTestExample,ioc.InjectDependencies,ioc,'name');
 		
 			expect(RedefineFromObject.toString()).toNotEqual(originalTestExample.toString());
 		});
@@ -36,7 +36,7 @@ describe("FunctionRedefinition", function() {
 
 		it("Returns the redefined function", function (){
 		
-			var result=RedefineFromObject(RedefinitionTestExample,ioc,'name');
+			var result=RedefineFromObject(RedefinitionTestExample,ioc.InjectDependencies,ioc,'name');
 		
 			expect(result).toEqual(RedefinitionTestExample);
 		});
@@ -48,7 +48,7 @@ describe("FunctionRedefinition", function() {
 			spyOn(getGlobal(),'SpyAbleFunction');	
 			spyOn(ioc,"InjectDependencies");	
 
-			RedefineFromObject(RedefinitionTestExample,ioc,'name');
+			RedefineFromObject(RedefinitionTestExample,ioc.InjectDependencies,ioc,'name');
 							
 			
 			obj=new RedefinitionTestExample(1,2);		
@@ -61,7 +61,7 @@ describe("FunctionRedefinition", function() {
 			
 			spyOn(ioc,"InjectDependencies");	
 	
-			RedefineFromObject(RedefinitionTestExample,ioc,'name');
+			RedefineFromObject(RedefinitionTestExample,ioc.InjectDependencies,ioc,'name');
 			
 			var obj=new RedefinitionTestExample();		
 				
@@ -72,7 +72,7 @@ describe("FunctionRedefinition", function() {
 	
 			var orig=RedefinitionTestExample.prototype;
 				
-			RedefineFromObject(RedefinitionTestExample,ioc,'name');
+			RedefineFromObject(RedefinitionTestExample,ioc.InjectDependencies,ioc,'name');
 			
 	        expect(RedefinitionTestExample.prototype).toBe(orig);
 	    });
@@ -82,7 +82,7 @@ describe("FunctionRedefinition", function() {
 	
 			var origConstructor=RedefinitionTestExample.prototype.constructor;
 				
-			RedefineFromObject(RedefinitionTestExample,ioc,'name');
+			RedefineFromObject(RedefinitionTestExample,ioc.InjectDependencies,ioc,'name');
 			
 	        expect(RedefinitionTestExample.prototype.constructor).toBe(RedefinitionTestExample);
 	        expect(RedefinitionTestExample.prototype.constructor).toNotBe(origConstructor);
@@ -93,7 +93,7 @@ describe("FunctionRedefinition", function() {
 			RedefinitionTestExample.prototype.constructor=function(){};
 			var origConstructor=RedefinitionTestExample.prototype.constructor;
 			
-			RedefineFromObject(RedefinitionTestExample,ioc,'name');
+			RedefineFromObject(RedefinitionTestExample,ioc.InjectDependencies,ioc,'name');
 			
 	        expect(RedefinitionTestExample.prototype.constructor).toNotBe(RedefinitionTestExample);
 	        expect(RedefinitionTestExample.prototype.constructor).toBe(origConstructor);
@@ -105,7 +105,7 @@ describe("FunctionRedefinition", function() {
 			
 			var origFoo=LocalFoo;
 			
-			var result=RedefineFromObject(LocalFoo,ioc,'name');
+			var result=RedefineFromObject(LocalFoo,ioc.InjectDependencies,ioc,'name');
 			
 			expect(LocalFoo).toBe(origFoo);
 			expect(result).toNotBe(origFoo);
@@ -131,14 +131,14 @@ describe("FunctionRedefinition", function() {
 
 		it("Redefines function", function (){
 		
-			Redefine('Foo',FooScope,ioc,'name');
+			Redefine('Foo',FooScope,ioc.InjectDependencies,ioc,'name');
 		
 			expect(FooScope.Foo.toString()).toNotEqual(originalTestExample.toString());
 		});
 	
 		it("Returns the redefined function", function (){
 		
-			var result=Redefine('Foo',FooScope,ioc,'name');
+			var result=Redefine('Foo',FooScope,ioc.InjectDependencies,ioc,'name');
 		
 			expect(result).toEqual(FooScope.Foo);
 		});
@@ -147,7 +147,7 @@ describe("FunctionRedefinition", function() {
 			
 			var orig=RedefinitionTestExample;
 		
-			Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
+			Redefine('RedefinitionTestExample',getGlobal(),ioc.InjectDependencies,ioc,'name');
 		
 			expect(RedefinitionTestExample).toNotBe(orig);
 			expect(RedefinitionTestExample.toString()).toNotEqual(orig.toString());
@@ -161,7 +161,7 @@ describe("FunctionRedefinition", function() {
 			spyOn(FooScope,'SpyAbleFoo');	
 			spyOn(ioc,"InjectDependencies");	
 	
-			Redefine('Foo',FooScope,ioc,'name');
+			Redefine('Foo',FooScope,ioc.InjectDependencies,ioc,'name');
 			
 			obj=new FooScope.Foo(1,2);		
 				
@@ -173,7 +173,7 @@ describe("FunctionRedefinition", function() {
 			
 			spyOn(ioc,"InjectDependencies");	
 	
-			Redefine('Foo',FooScope,ioc,'name');
+			Redefine('Foo',FooScope,ioc.InjectDependencies,ioc,'name');
 			
 			var obj=new FooScope.Foo();		
 				
@@ -184,7 +184,7 @@ describe("FunctionRedefinition", function() {
 	
 			var orig=FooScope.Foo.prototype;
 				
-			Redefine('Foo',FooScope,ioc,'name');
+			Redefine('Foo',FooScope,ioc.InjectDependencies,ioc,'name');
 			
 	        expect(FooScope.Foo.prototype).toBe(orig);
 	    });
@@ -194,7 +194,7 @@ describe("FunctionRedefinition", function() {
 	
 			var origConstructor=FooScope.Foo.prototype.constructor;
 				
-			Redefine('Foo',FooScope,ioc,'name');
+			Redefine('Foo',FooScope,ioc.InjectDependencies,ioc,'name');
 			
 	        expect(FooScope.Foo.prototype.constructor).toBe(FooScope.Foo);
 	        expect(FooScope.Foo.prototype.constructor).toNotBe(origConstructor);
@@ -205,7 +205,7 @@ describe("FunctionRedefinition", function() {
 			FooScope.Foo.prototype.constructor=function(){};
 			var origConstructor=FooScope.Foo.prototype.constructor	;
 			
-			Redefine('Foo',FooScope,ioc,'name');
+			Redefine('Foo',FooScope,ioc.InjectDependencies,ioc,'name');
 			
 	        expect(FooScope.Foo.prototype.constructor).toNotBe(FooScope.Foo);
 	        expect(FooScope.Foo.prototype.constructor).toBe(origConstructor);

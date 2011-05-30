@@ -43,7 +43,7 @@ describe("BindingStart", function () {
         expect(binding._name).toEqual("someServiceName");
         expect(binding._original).toEqual(oldFoo);
         expect(binding._isObject).toBeTruthy();
-        expect(RedefineFromObject).toHaveBeenCalledWith(oldFoo,ioc,"someServiceName");
+        expect(RedefineFromObject).toHaveBeenCalledWith(oldFoo,ioc.InjectDependencies,ioc,"someServiceName");
         expect(typeof(binding.service)).toEqual("function");
     });
 
@@ -63,7 +63,7 @@ describe("BindingStart", function () {
         expect(binding._name).toEqual("someServiceName");
         expect(binding._original).toEqual(oldFoo);
         expect(binding._isObject).toBeTruthy();
-        expect(Redefine).toHaveBeenCalledWith('Foo',FooScope,ioc,"someServiceName");
+        expect(Redefine).toHaveBeenCalledWith('Foo',FooScope,ioc.InjectDependencies,ioc,"someServiceName");
         expect(typeof(binding.service)).toEqual("function");
     });
 
@@ -91,7 +91,7 @@ describe("BindingStart", function () {
         expect(funcBinding._name).toEqual("someServiceName");
         expect(funcBinding._original).toEqual(oldFoo);
         expect(funcBinding._isObject).toBeFalsy();
-        expect(RedefineFromObject).toHaveBeenCalledWith(Foo,ioc,"someServiceName");
+        expect(RedefineFromObject).toHaveBeenCalledWith(Foo,ioc.InjectDependencies,ioc,"someServiceName");
         expect(typeof(funcBinding.service)).toEqual("function");
     });
 
@@ -128,7 +128,7 @@ describe("BindingStart", function () {
         expect(funcBinding._name).toEqual("someServiceName");
         expect(funcBinding._original).toEqual(oldFoo);
         expect(funcBinding._isObject).toBeFalsy();
-        expect(Redefine).toHaveBeenCalledWith('Foo',FooScope,ioc,"someServiceName");
+        expect(Redefine).toHaveBeenCalledWith('Foo',FooScope,ioc.InjectDependencies,ioc,"someServiceName");
         expect(typeof(funcBinding.service)).toEqual("function");
     });
     

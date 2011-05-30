@@ -22,7 +22,7 @@ BindingStart.prototype = {
 	///	<returns type="Binding" />
 
         var binding = new Binding(this._name,value,true);
-        binding.service = RedefineFromObject(value,this._container,this._name);
+        binding.service = RedefineFromObject(value,this._container.InjectDependencies,this._container,this._name);
 
         this._container.RegBinding(binding);
 
@@ -55,7 +55,7 @@ BindingStart.prototype = {
         	scope=getGlobal();
         var binding = new Binding(this._name,scope[name],true);
 
-        binding.service = Redefine(name,scope,this._container,this._name);
+        binding.service = Redefine(name,scope,this._container.InjectDependencies,this._container,this._name);
 
         this._container.RegBinding(binding);
 
@@ -75,7 +75,7 @@ BindingStart.prototype = {
 
         var binding = new Binding(this._name,obj,false);
         
-        binding.service = RedefineFromObject(obj,this._container,this._name);
+        binding.service = RedefineFromObject(obj,this._container.InjectDependencies,this._container,this._name);
 
         this._container.RegBinding(binding);
 
@@ -97,7 +97,7 @@ BindingStart.prototype = {
         	scope=getGlobal();
         var binding = new Binding(this._name,scope[name],false);
         
-        binding.service = Redefine(name,scope,this._container,this._name);
+        binding.service = Redefine(name,scope,this._container.InjectDependencies,this._container,this._name);
 
         this._container.RegBinding(binding);
 
