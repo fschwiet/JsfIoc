@@ -5,24 +5,42 @@ function Redefine(name,scope,ioc,iocRegName){
 	if (scope==undefined)
 		scope=getGlobal();
 
-	var original=scope[name];
-
-
-	scope[name]=(function(orig,regName){return function(){
-		ioc.InjectDependencies(this,regName);
-		orig.apply(this,arguments)};})(scope[name],iocRegName);
+	//We replace the definition with the new one, allowing to use new directly
+	scope[name]=_CreateFunctionWrapper(scope[name],ioc,iocRegName);
 	
-	scope[name].prototype=original.prototype;
-	if (original.prototype.constructor==original)
-		scope[name].prototype.constructor=scope[name];
-		
 	return scope[name];
 }
 
+function _CreateFunctionWrapper(obj,ioc,iocRegName){
 
+	var result;	
+	
+	if (typeof(obj)!='function')
+		throw("Invalid Argument, expecting a Function");
+	
+	result=(function(orig,regName){return function(){
+		ioc.InjectDependencies(this,regName);
+		orig.apply(this,arguments)};})(obj,iocRegName);
+	result.prototype=obj.prototype;
+	if (obj.prototype.constructor==obj)
+		result.prototype.constructor=result;
+
+	return result;
+}
 
 function RedefineFromObject(obj,ioc,iocRegName){
-	return Redefine(GetFunctionName(obj),getGlobal(),ioc,iocRegName);
+			
+	var result=_CreateFunctionWrapper(obj,ioc,iocRegName);			
+	
+	//If the object belongs to global scope, and name can be obtained, we can do full redefinition , allowing to use new directly
+
+
+	if ((getGlobal())[GetFunctionName(obj)]===obj)
+		(getGlobal())[GetFunctionName(obj)]=result;
+	
+	//else , we only return the redefined function
+	
+	return result;
 }
 
 

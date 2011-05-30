@@ -1,130 +1,158 @@
 ﻿/// <reference path="..\Intellisense.js"/>
-function Foo() {
-    };
 
-function Bar() {
-    };
-
-function Foo2() {
-    	this.dep++;
-    };
-
-function Source() {
+function JsfIocTestExample(){
 }
 
-function Listener() {
-};
-
-function MultiSource() {
-}
-
-
-
-Listener.prototype.OnInitialize = function () { }
 
 describe("JsfIoc", function () {
 
-            
-    var dep=2;
-
+	function Foo() {
+	};
+	
+	function Bar() {
+	};
+	
 	var originalFoo=Foo;
 	var originalBar=Bar;
-	
+
 	afterEach(function(){ Foo=originalFoo;Bar=originalBar;Foo.prototype.constructor=Foo;Bar.prototype.constructor=Bar});
-		
-    it("Register and load a minimal service", function () {
-
-        var sut = new JsfIoc();
-
-        sut.Register("_foo").withConstructor(Foo);
-
-        var result = sut.Load("_foo");
-
-        expect(result instanceof Foo).toBeTruthy();
-    });
-
-
-    it("Register and load a service with a dependency", function () {
-
-        var sut = new JsfIoc();
-
-        sut.Register("_bar").withConstructor(Bar);
-
-        sut.Register("_foo").withConstructor(Foo).withDependencies("_bar");
-
-        var result = sut.Load("_foo");
-
-        expect(result._bar instanceof Bar).toBeTruthy();
-    });
-
-
-    it("Load is not longer necesary", function () {
-
-        var sut = new JsfIoc();
-
-        sut.Register("_bar").withConstructor(Bar);
-
-        sut.Register("_foo").withConstructor(Foo).withDependencies("_bar");
-
-        var result = new Foo();
-
-        expect(result._bar instanceof Bar).toBeTruthy();
-    });
+            
+ 	describe("For constructor by object",function(){
 	
+		afterEach(function(){ Foo=originalFoo;Bar=originalBar;Foo.prototype.constructor=Foo;Bar.prototype.constructor=Bar});
+			
+	    it("Register and load a minimal service", function () {
+	
+	        var sut = new JsfIoc();
+	
+	        sut.Register("_foo").withConstructor(Foo);
+	
+	        var result = sut.Load("_foo");
+	
+	        expect(result instanceof Foo).toBeTruthy();
+	    });
+	
+	
+	    it("Register and load a service with a dependency", function () {
+	
+	        var sut = new JsfIoc();
+	
+	        sut.Register("_bar").withConstructor(Bar);
+	
+	        sut.Register("_foo").withConstructor(Foo).withDependencies("_bar");
+	
+	        var result = sut.Load("_foo");
+	
+	        expect(result._bar instanceof Bar).toBeTruthy();
+	    });
+	
+	
+	    it("Load is not longer necesary", function () {
+	
+	        var sut = new JsfIoc();
+	
+	        sut.Register("_bar").withConstructor(Bar);
+	
+	        Foo=sut.Register("_foo").withConstructor(Foo).withDependencies("_bar").getService();
+	
+	        var result = new Foo();
+	
+	        expect(result._bar instanceof Bar).toBeTruthy();
+	    });
+
+	    it("Load is not longer necesary, assigment is not necesary for global functions", function () {
+	
+	        var sut = new JsfIoc();
+	
+	        sut.Register("_bar").withConstructor(Bar);
+	
+	        sut.Register("_JsfIocTestExample").withConstructor(JsfIocTestExample).withDependencies("_bar").getService();
+	
+	        var result = new JsfIocTestExample();
+	
+	        expect(result._bar instanceof Bar).toBeTruthy();
+	    });
+
+
+	});
+	describe("For constructor by name,scope",function(){
 		
-				
-    it("Register and load a minimal service as name,scope", function () {
+		var FooScope={};
+		FooScope.Foo=function(){};
+		FooScope.Bar=function(){};
+		FooScope.Foo2=function(){this.dep++;};
+		
+		var originalFoo=FooScope.Foo;
+		var originalBar=FooScope.Bar;
+		
+		afterEach(function(){ FooScope.Foo=originalFoo;FooScope.Bar=originalBar;FooScope.Foo.prototype.constructor=FooScope.Foo;FooScope.Bar.prototype.constructor=FooScope.Bar});
+			
+	    it("Register and load a minimal service as name,scope", function () {
+	
+	        var sut = new JsfIoc();
 
- 
-        var sut = new JsfIoc();
-        var scoped={};
-        scoped.Foo=function(){};
-
-        sut.Register("_foo").withScopedConstructor('Foo',scoped);
-
-        var result = sut.Load("_foo");
-
-        expect(result instanceof scoped.Foo).toBeTruthy();
-    });
-
-    it("Register and load a service with a dependency as name,scope", function () {
-
-        var sut = new JsfIoc();
-
-        sut.Register("_bar").withScopedConstructor('Bar',getGlobal());
-
-        sut.Register("_foo").withScopedConstructor('Foo',getGlobal()).withDependencies("_bar");
-
-        var result = sut.Load("_foo");
-
-        expect(result._bar instanceof Bar).toBeTruthy();
-    });
-
-    it("Makes dependencies available at construction time ", function () {
-
-        var sut = new JsfIoc();
-
-        sut.Register("dep").withInstance(dep);
-
-        sut.Register("_foo2").withScopedConstructor('Foo2',getGlobal()).withDependencies("dep");
-
-        var result = new Foo2();
-
-        expect(result.dep).toEqual(3);
-    });
-
+	        sut.Register("_foo").withScopedConstructor('Foo',FooScope);
+	
+	        var result = sut.Load("_foo");
+	
+	        expect(result instanceof FooScope.Foo).toBeTruthy();
+	    });
+	
+	    it("Register and load a service with a dependency as name,scope", function () {
+	
+	        var sut = new JsfIoc();
+	
+	        sut.Register("_bar").withScopedConstructor('Bar',FooScope);
+	
+	        sut.Register("_foo").withScopedConstructor('Foo',FooScope).withDependencies("_bar");
+	
+	        var result = sut.Load("_foo");
+	
+	        expect(result._bar instanceof FooScope.Bar).toBeTruthy();
+	    });
+	
+	
+	    it("Load is not longer necesary in scoped either", function () {
+	
+	        var sut = new JsfIoc();
+	
+	        sut.Register("_bar").withConstructor(FooScope.Bar);
+	
+	        sut.Register("_foo").withScopedConstructor('Foo',FooScope).withDependencies("_bar").getService();
+	
+	        var result = new FooScope.Foo();
+	
+	        expect(result._bar instanceof FooScope.Bar).toBeTruthy();
+	    });
+	
+	    it("Makes dependencies available at construction time ", function () {
+	
+	        var sut = new JsfIoc();
+			var dep=2;
+	
+	        sut.Register("dep").withInstance(dep);
+	
+	        sut.Register("_foo2").withScopedConstructor('Foo2',FooScope).withDependencies("dep");
+	
+	        var result = new FooScope.Foo2();
+	
+	        expect(result.dep).toEqual(3);
+	    });
+	});
 
     it("Registers with different styles must be compatible", function () {
 
         var sut = new JsfIoc();
+        var BarScope={};
+        BarScope.Bar=function(){};
 
-        sut.Register("_bar").withScopedConstructor('Bar',getGlobal());
+        sut.Register("_bar").withScopedConstructor('Bar',BarScope);
 
         sut.Register("_foo").withConstructor(Foo).withDependencies("_bar");
 
         var result = sut.Load("_foo");
 
-        expect(result._bar instanceof Bar).toBeTruthy();
+        expect(result._bar instanceof BarScope.Bar).toBeTruthy();
     });
 
 
@@ -337,30 +365,44 @@ describe("JsfIoc", function () {
 
         expect(result).toBe(instance);
     });
-    
-    
-    it("A function can be registered", function () {
+
+    it("A function object can be registered", function () {
 
         var sut = new JsfIoc();
 
-        sut.Register("_foo").withFunction('Foo');
+        sut.Register("_foo").withFunction(Foo);
 
         var result = sut.Load("_foo");
+		var obj=new result();
 
 		expect(typeof(result)).toEqual('function');
-		
-		var obj=new result();
-		
         expect(obj instanceof Foo).toBeTruthy();
+    });  
+    
+    it("A function can be registered as name,scope", function () {
+
+        var sut = new JsfIoc();
+        var FooScope={};
+        FooScope.Foo=function(){};
+
+        sut.Register("_foo").withScopedFunction('Foo',FooScope);
+
+        var result = sut.Load("_foo");
+		var obj=new result();
+
+		expect(typeof(result)).toEqual('function');
+        expect(obj instanceof FooScope.Foo).toBeTruthy();
     });
 
     it("A constructor function can be registered, and constructed objects can have dependecies", function () {
 
-       var sut = new JsfIoc();
+        var sut = new JsfIoc();
+        var FooScope={};
+        FooScope.Foo=function(){};
 
         sut.Register("_bar").withConstructor(Bar);
 
-        sut.Register("_foo").withFunction('Foo').withDependencies("_bar");
+        sut.Register("_foo").withScopedFunction('Foo',FooScope).withDependencies("_bar");
 
         var result = new (sut.Load("_foo"))();
 
@@ -369,13 +411,15 @@ describe("JsfIoc", function () {
     
     it("A constructor function don't need Load", function () {
 
-       var sut = new JsfIoc();
+    	var sut = new JsfIoc();
+	    var FooScope={};
+        FooScope.Foo=function(){};
 
         sut.Register("_bar").withConstructor(Bar);
 
-        sut.Register("_foo").withFunction('Foo').withDependencies("_bar");
+        sut.Register("_foo").withScopedFunction('Foo',FooScope).withDependencies("_bar");
 
-        var result = new Foo();
+        var result = new FooScope.Foo();
 
         expect(result._bar instanceof Bar).toBeTruthy();
     });
@@ -408,6 +452,16 @@ describe("JsfIoc", function () {
     });
 
     describe("Simple event dispatching", function () {
+
+		function Source() {
+		}
+		
+		function Listener() {
+		}
+		Listener.prototype.OnInitialize = function () { };
+		
+		function MultiSource() {
+		}
 
  
         var sut;

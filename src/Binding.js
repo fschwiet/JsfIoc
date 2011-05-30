@@ -61,8 +61,28 @@ BindingStart.prototype = {
 
         return binding;
     },
+    
+    withFunction: function (obj) {
+	///	<summary>
+	///		Registers a component by scoped constructor, returning a configuration builder with more options.
+	///	</summary>
+	///	<param name="name" type="string">
+    ///     The constructor name for the component
+	///	<param name="scope" type="object">
+    ///     The scope of the constructor for the component
+	///	</param>
+	///	<returns type="Binding" />
 
-    withFunction: function (name,scope) {
+        var binding = new Binding(this._name,obj,false);
+        
+        binding.service = RedefineFromObject(obj,this._container,this._name);
+
+        this._container.RegBinding(binding);
+
+        return binding;
+    },
+
+    withScopedFunction: function (name,scope) {
 	///	<summary>
 	///		Registers a component by scoped constructor, returning a configuration builder with more options.
 	///	</summary>
@@ -82,8 +102,7 @@ BindingStart.prototype = {
         this._container.RegBinding(binding);
 
         return binding;
-    }
-
+    },
 
 }
 
@@ -147,7 +166,15 @@ Binding.prototype = {
             return this._name;
 
         return result;
-    }
+    },
+    
+	getService: function(){
+	///	<summary>
+	///		Retrieves the service function for the bining, allowing for example to redefinition of local functions.
+	///	</summary>
+	///	<returns type="object" />
+		return this.service;
+	}
 }
 
 Binding.WhitespaceRegex = /^\s*$/;
@@ -157,58 +184,3 @@ Binding.AppendArgsToMember = function(args, target, member) {
         target[member].push(args[i]);
     }
 }
-
-/*
-
-function FunctionBinding(name,original) {
-    this._name = name;
-    this._requires = [];
-    this._eventSource = [];
-    this._eventListener = [];
-    this._original=original;
-
-    ExtendAsFluent.PrototypeOf(FunctionBinding);
-}
-
-FunctionBinding.prototype = {
-    constructor: FunctionBinding,
-
-    withDependencies: function() {
-    	///	<returns type="Binding" />
-        FunctionBinding.AppendArgsToMember(arguments, this, "_requires");
-    },
-
-
-    sendingEvents: function() {
-	    ///	<returns type="Binding" />
-        FunctionBinding.AppendArgsToMember(arguments, this, "_eventSource");
-    },
-
-    receivingEvents: function() {
-	    ///	<returns type="Binding" />
-        FunctionBinding.AppendArgsToMember(arguments, this, "_eventListener");
-    },
-
-    GetFriendlyName: function () {
-        var result = this._original.toString();
-
-        if (result.indexOf("(") > -1)
-            result = result.slice(0, result.indexOf("("));
-        if (result.indexOf("function ") == 0)
-            result = result.slice("function ".length);
-
-        if (Binding.WhitespaceRegex.test(result))
-            return this._name;
-
-        return result;
-    }
-}
-
-FunctionBinding.WhitespaceRegex = /^\s*$/;
-
-FunctionBinding.AppendArgsToMember = function(args, target, member) {
-    for(var i = 0; i < args.length; i++) {
-        target[member].push(args[i]);
-    }
-}
-*/

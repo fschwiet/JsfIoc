@@ -10,14 +10,21 @@ function RedefinitionTestExample(p1,p2){
 
 describe("FunctionRedefinition", function() {
 
-	var originalTestExample=RedefinitionTestExample;
 	var ioc;
+	var originalTestExample=RedefinitionTestExample;
+
+	beforeEach(function(){
+		ioc=new JsfIoc();
+	});
 	
-	afterEach(function(){RedefinitionTestExample=originalTestExample;RedefinitionTestExample.prototype.constructor=RedefinitionTestExample;});
-	beforeEach(function(){ioc=new JsfIoc();});
+	afterEach(function(){
+		RedefinitionTestExample=originalTestExample;
+		RedefinitionTestExample.prototype.constructor=RedefinitionTestExample;
+	});
 
 
 	describe("Global function/constructor",function(){
+
 
 		it("Redefines function", function (){
 		
@@ -92,60 +99,73 @@ describe("FunctionRedefinition", function() {
 	        expect(RedefinitionTestExample.prototype.constructor).toBe(origConstructor);
 	    });
 
+		it("If passed function is not global, it has unknown scope, redefined function is returned, but original is not replaced",function(){
+			
+			function LocalFoo(){}
+			
+			var origFoo=LocalFoo;
+			
+			var result=RedefineFromObject(LocalFoo,ioc,'name');
+			
+			expect(LocalFoo).toBe(origFoo);
+			expect(result).toNotBe(origFoo);
+		
+		});
+
 	});
             
 	describe("Scoped function/constructor",function(){
 
+		var FooScope={};
+		var origFoo;
+
+		beforeEach(function(){
+			FooScope.SpyAbleFoo=function(p1,p2,p3){
+			};
+
+			FooScope.Foo=function(p1,p2){
+				FooScope.SpyAbleFoo(p1,p2,this);
+			};
+			origFoo=FooScope.Foo;
+		});
+
 		it("Redefines function", function (){
 		
-			Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
+			Redefine('Foo',FooScope,ioc,'name');
 		
-			expect(RedefineFromObject.toString()).toNotEqual(originalTestExample.toString());
+			expect(FooScope.Foo.toString()).toNotEqual(originalTestExample.toString());
 		});
 	
 		it("Returns the redefined function", function (){
 		
-			var result=Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
+			var result=Redefine('Foo',FooScope,ioc,'name');
 		
-			expect(result).toEqual(RedefinitionTestExample);
+			expect(result).toEqual(FooScope.Foo);
 		});
 	
-		it("Redefines object scoped function", function (){
+		it("Redefines Global scoped function", function (){
+			
+			var orig=RedefinitionTestExample;
 		
-			var FooObject={};
+			Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
 		
-			FooObject.Foo=function(){};
-		
-			var orig=FooObject.Foo;
-		
-			Redefine('Foo',FooObject,ioc,'name');
-		
-			expect(FooObject.Foo).toNotBe(orig);
-			expect(FooObject.Foo.toString()).toNotEqual(orig.toString());
-		});
-
-
-		it("Redefines object scoped function, if scope is undefined means global", function (){
-		
-			Redefine('RedefinitionTestExample',undefined,ioc,'name');
-		
-			expect(RedefineFromObject.toString()).toNotEqual(originalTestExample.toString());
+			expect(RedefinitionTestExample).toNotBe(orig);
+			expect(RedefinitionTestExample.toString()).toNotEqual(orig.toString());
 		});
 
 
 
 	    it("Redefined function calls the original", function () {
 
-			var orig=RedefinitionTestExample;
 				
-			spyOn(getGlobal(),'SpyAbleFunction');	
+			spyOn(FooScope,'SpyAbleFoo');	
 			spyOn(ioc,"InjectDependencies");	
 	
-			Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
+			Redefine('Foo',FooScope,ioc,'name');
 			
-			obj=new RedefinitionTestExample(1,2);		
+			obj=new FooScope.Foo(1,2);		
 				
-	        expect(SpyAbleFunction).toHaveBeenCalledWith(1,2,obj);
+	        expect(FooScope.SpyAbleFoo).toHaveBeenCalledWith(1,2,obj);
 	    });
 
 				
@@ -153,42 +173,42 @@ describe("FunctionRedefinition", function() {
 			
 			spyOn(ioc,"InjectDependencies");	
 	
-			Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
+			Redefine('Foo',FooScope,ioc,'name');
 			
-			var obj=new RedefinitionTestExample();		
+			var obj=new FooScope.Foo();		
 				
 	        expect(ioc.InjectDependencies).toHaveBeenCalledWith(obj,'name');
 	    });
 	
 	    it("Redefined function mantains prototype", function () {
 	
-			var orig=RedefinitionTestExample.prototype;
+			var orig=FooScope.Foo.prototype;
 				
-			Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
+			Redefine('Foo',FooScope,ioc,'name');
 			
-	        expect(RedefinitionTestExample.prototype).toBe(orig);
+	        expect(FooScope.Foo.prototype).toBe(orig);
 	    });
 	   
 	
 	    it("Redefined function replace prototype.constructor if it original point to passed constructor", function () {
 	
-			var origConstructor=RedefinitionTestExample.prototype.constructor;
+			var origConstructor=FooScope.Foo.prototype.constructor;
 				
-			Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
+			Redefine('Foo',FooScope,ioc,'name');
 			
-	        expect(RedefinitionTestExample.prototype.constructor).toBe(RedefinitionTestExample);
-	        expect(RedefinitionTestExample.prototype.constructor).toNotBe(origConstructor);
+	        expect(FooScope.Foo.prototype.constructor).toBe(FooScope.Foo);
+	        expect(FooScope.Foo.prototype.constructor).toNotBe(origConstructor);
 	    });
 
 	    it("Redefined function does NOT replace prototype.constructor if it original does NOT point to passed constructor", function () {
 	
-			RedefinitionTestExample.prototype.constructor=function(){};
-			var origConstructor=RedefinitionTestExample.prototype.constructor	;
+			FooScope.Foo.prototype.constructor=function(){};
+			var origConstructor=FooScope.Foo.prototype.constructor	;
 			
-			Redefine('RedefinitionTestExample',getGlobal(),ioc,'name');
+			Redefine('Foo',FooScope,ioc,'name');
 			
-	        expect(RedefinitionTestExample.prototype.constructor).toNotBe(RedefinitionTestExample);
-	        expect(RedefinitionTestExample.prototype.constructor).toBe(origConstructor);
+	        expect(FooScope.Foo.prototype.constructor).toNotBe(FooScope.Foo);
+	        expect(FooScope.Foo.prototype.constructor).toBe(origConstructor);
 	    });
 
 	});
