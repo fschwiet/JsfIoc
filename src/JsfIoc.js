@@ -120,7 +120,10 @@ JsfIoc.prototype = {
             
         for (var i = 0; i < binding._requires.length; i++) {
             var dependency = binding._requires[i];
-            scope[dependency] = this.Load(dependency);
+            if (dependency.name !=undefined)
+            	scope[dependency.name]= this.Load(dependency.service);
+            else
+            	scope[dependency] = this.Load(dependency);
         }
 
         if (binding.boundParameters) {

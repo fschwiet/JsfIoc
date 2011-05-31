@@ -100,7 +100,7 @@ describe("BindingStart", function () {
 		var BarScope={};
 		BarScope.Bar=function(){};
 		
-		function Foo(){BarScope.Bar()};
+		function Foo(){BarScope.Bar();}
         var oldFoo=Foo;
 
  	    spyOn(BarScope, "Bar");
@@ -161,6 +161,13 @@ describe("Binding", function () {
         var binding = new Binding("serviceName").withDependencies(1, 2, 3);
 
         expect(binding._requires).toEqual([1, 2, 3]);
+    });
+
+  it("can specify named dependencies as json", function () {
+
+        var binding = new Binding("serviceName").withDependencies({name :"1",service: "Imp"} , 2, 3);
+
+        expect(binding._requires).toEqual([{name :"1",service: "Imp"}, 2, 3]);
     });
 
     it("can specify parameters", function () {

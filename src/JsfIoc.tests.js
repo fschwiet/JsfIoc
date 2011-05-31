@@ -45,8 +45,36 @@ describe("JsfIoc", function () {
 	
 	        expect(result._bar instanceof Bar).toBeTruthy();
 	    });
+
+
+	    it("Register and load a service with a named dependency", function () {
 	
+	        var sut = new JsfIoc();
 	
+	        sut.Register("_bar").withConstructor(Bar);
+	
+	        sut.Register("_foo").withConstructor(Foo).withDependencies({service:"_bar",name:"_myBar"});
+	
+	        var result = sut.Load("_foo");
+	
+	        expect(result._myBar instanceof Bar).toBeTruthy();
+	        expect(result._Bar instanceof Bar).toBeFalsy();
+	    });
+		
+	    it("Register and load a service with a named dependency", function () {
+	
+	        var sut = new JsfIoc();
+	
+	        sut.Register("_bar").withConstructor(Bar);
+	
+	        sut.Register("_foo").withConstructor(Foo).withDependency("_bar","_myBar");
+	
+	        var result = sut.Load("_foo");
+	
+	        expect(result._myBar instanceof Bar).toBeTruthy();
+	        expect(result._Bar instanceof Bar).toBeFalsy();
+	    });
+	    	
 	    it("Load is not longer necesary", function () {
 	
 	        var sut = new JsfIoc();

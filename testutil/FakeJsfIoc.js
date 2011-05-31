@@ -126,7 +126,7 @@ FakeJsfIoc.prototype = {
                 that._includedServices = [];
                 return result;
             }
-        }
+        };
 
     },
     RegisterInstance: function (name, instance) {
@@ -189,13 +189,23 @@ FakeJsfIoc.prototype = {
             var dependency = binding._requires[i];
 
             for (var includeIndex = 0; includeIndex < this._includedServices.length; includeIndex++) {
-                if (dependency == this._includedServices[includeIndex]) {
-                    scope[dependency] = this.Load(this._ioc._bindings[dependency]._original);
-                    continue dependencyLoadingLoop;
+            	if (dependency.name!=undefined){
+ 	                if (dependency.name == this._includedServices[includeIndex]) {
+	                    scope[dependency.name] = this.Load(this._ioc._bindings[dependency.service]._original);
+	                    continue dependencyLoadingLoop;
+	                }
+            	}else{
+	                if (dependency == this._includedServices[includeIndex]) {
+	                    scope[dependency] = this.Load(this._ioc._bindings[dependency]._original);
+	                    continue dependencyLoadingLoop;
+	                }
                 }
             }
-
-            scope[dependency] = this.LoadTestDouble(dependency);
+           	if (dependency.name!=undefined){
+	            scope[dependency.name] = this.LoadTestDouble(dependency.service);
+			}else{
+	            scope[dependency] = this.LoadTestDouble(dependency);
+			}
         }
 
         if (binding.boundParameters) {
