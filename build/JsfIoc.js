@@ -49,8 +49,8 @@ BindingStart.prototype = {
 	///	</param>
 	///	<returns type="Binding" />
 
-        var binding = new Binding(this._name);
-        binding.service = value;
+        var binding = new Binding(this._name,value,true);
+        binding.service = RedefineFromObject(value,this._container.InjectDependencies,this._container,this._name);
 
         this._container.RegBinding(binding);
 
@@ -66,17 +66,84 @@ BindingStart.prototype = {
 	///	</param>
 
         this._container.RegisterInstance(this._name, value);
-    }
+    },
+
+    withScopedConstructor: function (name,scope) {
+	///	<summary>
+	///		Registers a component by scoped constructor, returning a configuration builder with more options.
+	///	</summary>
+	///	<param name="name" type="string">
+    ///     The constructor name for the component
+	///	<param name="scope" type="object">
+    ///     The scope of the constructor for the component
+	///	</param>
+	///	<returns type="Binding" />
+
+        if (scope==undefined)
+        	scope=getGlobal();
+        var binding = new Binding(this._name,scope[name],true);
+
+        binding.service = Redefine(name,scope,this._container.InjectDependencies,this._container,this._name);
+
+        this._container.RegBinding(binding);
+
+        return binding;
+    },
+    
+    withFunction: function (obj) {
+	///	<summary>
+	///		Registers a component by scoped constructor, returning a configuration builder with more options.
+	///	</summary>
+	///	<param name="name" type="string">
+    ///     The constructor name for the component
+	///	<param name="scope" type="object">
+    ///     The scope of the constructor for the component
+	///	</param>
+	///	<returns type="Binding" />
+
+        var binding = new Binding(this._name,obj,false);
+        
+        binding.service = RedefineFromObject(obj,this._container.InjectDependencies,this._container,this._name);
+
+        this._container.RegBinding(binding);
+
+        return binding;
+    },
+
+    withScopedFunction: function (name,scope) {
+	///	<summary>
+	///		Registers a component by scoped constructor, returning a configuration builder with more options.
+	///	</summary>
+	///	<param name="name" type="string">
+    ///     The constructor name for the component
+	///	<param name="scope" type="object">
+    ///     The scope of the constructor for the component
+	///	</param>
+	///	<returns type="Binding" />
+
+        if (scope==undefined)
+        	scope=getGlobal();
+        var binding = new Binding(this._name,scope[name],false);
+        
+        binding.service = Redefine(name,scope,this._container.InjectDependencies,this._container,this._name);
+
+        this._container.RegBinding(binding);
+
+        return binding;
+    },
+
 }
 
 
-function Binding(name) {
+function Binding(name,original,isObject) {
     this._name = name;
     this._requires = [];
     this._parameters = [];
     this._singleton = false;
     this._eventSource = [];
     this._eventListener = [];
+    this._original=original;
+    this._isObject=isObject;
 
     ExtendAsFluent.PrototypeOf(Binding);
 }
@@ -116,7 +183,7 @@ Binding.prototype = {
     },
 
     GetFriendlyName: function () {
-        var result = this.service.toString();
+        var result = this._original.toString();
 
         if (result.indexOf("(") > -1)
             result = result.slice(0, result.indexOf("("));
@@ -127,7 +194,15 @@ Binding.prototype = {
             return this._name;
 
         return result;
-    }
+    },
+    
+	getService: function(){
+	///	<summary>
+	///		Retrieves the service function for the bining, allowing for example to redefinition of local functions.
+	///	</summary>
+	///	<returns type="object" />
+		return this.service;
+	}
 }
 
 Binding.WhitespaceRegex = /^\s*$/;
@@ -137,7 +212,6 @@ Binding.AppendArgsToMember = function(args, target, member) {
         target[member].push(args[i]);
     }
 }
-
 // ExtendAsFluent.js
 
 
@@ -172,6 +246,99 @@ ExtendAsFluent.PrototypeOf = function (obj) {
         }
     }
 };
+// FunctionRedefinition.js
+
+
+function Redefine(name,scope,injector,ioc,iocRegName){
+	///	<summary>
+	///		Redefines a function, injecting dependencies by adding properties to this, if the function is a constructor,
+	///     it injects the properties to the constructed object, and are available when the actual constructor is called.
+	///	</summary>
+	///	<param name="name" type="string">The name of the function</param>
+	///	<param name="scope" type="object">The scope where the function is defined</param>
+	///	<param name="injector" type="function">The function to be used to inject dependencies</param>
+	///	<param name="ioc" type="object">scope of the injector function</param>
+	///	<param name="iocRegName" type="string">The name of the service in the ioc</param>
+	///	<returns type="Binding" />
+	if (scope==undefined)
+		scope=getGlobal();
+
+	//We replace the definition with the new one, allowing to use new directly
+	scope[name]=_CreateFunctionWrapper(scope[name],injector,ioc,iocRegName);
+	
+	return scope[name];
+}
+
+
+function RedefineFromObject(obj,injector,ioc,iocRegName){
+	///	<summary>
+	///		Redefines a function, injecting dependencies by adding properties to this, if the function is a constructor,
+	///     it injects the properties to the constructed object, and are available when the actual constructor is called.
+	///		If the function is global it can be reassigned, if not the modified version is just returned
+	///	</summary>
+	///	<param name="obj" type="object">The name of the function</param>
+	///	<param name="injector" type="function">The function to be used to inject dependencies</param>
+	///	<param name="ioc" type="object">scope of the injector function</param>
+	///	<param name="iocRegName" type="string">The name of the service in the ioc</param>
+	///	<returns type="Binding" />
+			
+	var result=_CreateFunctionWrapper(obj,injector,ioc,iocRegName);			
+	
+	//If the object belongs to global scope, and name can be obtained, we can do full redefinition , allowing to use new directly
+
+
+	if ((getGlobal())[_GetFunctionName(obj)]===obj)
+		(getGlobal())[_GetFunctionName(obj)]=result;
+	
+	//else , we only return the redefined function
+	
+	return result;
+}
+
+function _CreateFunctionWrapper(obj,injector,ioc,iocRegName){
+
+	var result;	
+	
+	if (typeof(obj)!='function')
+		throw("Invalid Argument, expecting a Function");
+	
+	result=(function(orig,regName,dependencyInjector,diScope){return function(){
+		dependencyInjector.call(diScope,this,regName);
+		orig.apply(this,arguments)};})(obj,iocRegName,injector,ioc);
+	result.prototype=obj.prototype;
+	if (obj.prototype.constructor==obj)
+		result.prototype.constructor=result;
+
+	return result;
+}
+
+
+function _GetFunctionName(obj){
+
+	if (typeof(obj)!='function')
+		throw "Invalid Argument, function expected";
+
+    var result = obj.toString();
+
+    if (result.indexOf("(") > -1)
+        result = result.slice(0, result.indexOf("("));
+    if (result.indexOf("function ") == 0)
+        result = result.slice("function ".length);
+
+    return result;
+}
+// Global.js
+
+
+///	<summary>
+///		Returns the global object
+///	</summary>
+///	<returns global object />
+function getGlobal(){
+	return (function(){
+		return this;
+	}).call(null);
+}
 // JsfIoc.js
 
 function JsfIoc() {
@@ -205,41 +372,18 @@ JsfIoc.prototype = {
             return result;
 
         var binding = this.GetBinding(name, "Load");
+        
+        if (binding._isObject){
+	        result = new binding.service;
+        
+        	if (!binding.boundParameters){
+	            var values = Array.prototype.slice.call(arguments, 1); // all arguments after the first
 
-        result = new binding.service;
-
-        for (var i = 0; i < binding._requires.length; i++) {
-            var dependency = binding._requires[i];
-            result[dependency] = this.Load(dependency);
-        }
-
-        if (binding.boundParameters) {
-            for (var i = 0; i < binding._parameters.length; i++) {
-                var parameter = binding._parameters[i];
-                result[parameter._name] = binding.boundParameters[parameter._name];
-            }
-        }
-        else {
-            var values = Array.prototype.slice.call(arguments, 1); // all arguments after the first
-
-            this._SetParametersToObject(binding, result, values)
-        }
-
-        for (var i = 0; i < binding._eventSource.length; i++) {
-
-            (function (event, that) {
-
-                result["_notify" + event] = function () {
-                    that.NotifyEvent(event, arguments);
-                };
-            })(binding._eventSource[i], this);
-        }
-
-        this._trace.Decorate(binding, result);
-
-        if (binding._singleton) {
-            this._singletons[name] = result;
-        }
+	            this._SetParametersToObject(binding, result, values)
+        	}
+	    }
+	    else
+			result = binding.service;
 
         return result;
     },
@@ -255,6 +399,7 @@ JsfIoc.prototype = {
 
         binding.boundParameters = boundParameters;
     },
+
     GetBinding: function (name, caller) {
 
         var binding = this._bindings[name];
@@ -308,6 +453,39 @@ JsfIoc.prototype = {
             }
         } else {
             target[parameter._name] = value;
+        }
+    },
+    
+    InjectDependencies: function(scope,name){
+
+    	var binding=this.GetBinding(name,"InjectDependencies");
+            
+        for (var i = 0; i < binding._requires.length; i++) {
+            var dependency = binding._requires[i];
+            scope[dependency] = this.Load(dependency);
+        }
+
+        if (binding.boundParameters) {
+            for (var i = 0; i < binding._parameters.length; i++) {
+                var parameter = binding._parameters[i];
+                scope[parameter._name] = binding.boundParameters[parameter._name];
+            }
+        }
+ 
+        for (var i = 0; i < binding._eventSource.length; i++) {
+
+            (function (event, that) {
+
+                scope["_notify" + event] = function () {
+                    that.NotifyEvent(event, arguments);
+                };
+            })(binding._eventSource[i], this);
+        }
+
+        this._trace.Decorate(binding, scope);
+
+        if (binding._singleton) {
+            this._singletons[name] = scope;
         }
     }
 };
@@ -416,7 +594,7 @@ JsfTrace.prototype = {
 
             var singletonBinding = this._ioc.GetBinding(singletonName);
 
-            if (singletonBinding.service == service) {
+            if (singletonBinding._original == service) {
                 decorator(singletonBinding, this._ioc._singletons[singletonName]);
             }
         }
@@ -427,7 +605,7 @@ JsfTrace.prototype = {
 
             var entry = this._decorators[i];
 
-            if (binding.service == entry[0]) {
+            if (binding._original == entry[0]) {
                 entry[1](binding, instance);
             }
         }
