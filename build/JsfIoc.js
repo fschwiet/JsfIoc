@@ -155,6 +155,10 @@ Binding.prototype = {
     	///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_requires");
     },
+    withDependency: function(serviceName,memberName) {
+    	///	<returns type="Binding" />
+        Binding.AppendArgsToMember([{service: serviceName,name: memberName}], this, "_requires");
+    },
 
     withParameters: function() {
 	    ///	<returns type="Binding" />
@@ -212,6 +216,7 @@ Binding.AppendArgsToMember = function(args, target, member) {
         target[member].push(args[i]);
     }
 }
+
 // ExtendAsFluent.js
 
 
@@ -462,7 +467,10 @@ JsfIoc.prototype = {
             
         for (var i = 0; i < binding._requires.length; i++) {
             var dependency = binding._requires[i];
-            scope[dependency] = this.Load(dependency);
+            if (dependency.name !=undefined)
+            	scope[dependency.name]= this.Load(dependency.service);
+            else
+            	scope[dependency] = this.Load(dependency);
         }
 
         if (binding.boundParameters) {
