@@ -30,35 +30,28 @@ FakeJsfIoc.prototype = {
         /// </param>
 
         var binding = this.GetBindingByClass(service);
+        var result = ioc._singletons[binding._name];
 
-        var result = new binding.service;
+        if (result)
+            return result;
 
-        dependencyLoadingLoop:
-        for (var i = 0; i < binding._requires.length; i++) {
+		if (binding._fakeService==undefined)
+			binding._fakeService=RedefineFromObject(binding._original,this.InjectDependencies,this,binding._name);
 
-            var dependency = binding._requires[i];
+	    if (binding._isObject){
+        	result = new binding._fakeService;
 
-            for (var includeIndex = 0; includeIndex < this._includedServices.length; includeIndex++) {
-                if (dependency == this._includedServices[includeIndex]) {
-                    result[dependency] = this.Load(this._ioc._bindings[dependency].service);
-                    continue dependencyLoadingLoop;
-                }
-            }
+        	var parameterValues = Array.prototype.slice.call(arguments, 1); // all arguments after the first
 
-            result[dependency] = this.LoadTestDouble(dependency);
-        }
-
-        var parameterValues = Array.prototype.slice.call(arguments, 1); // all arguments after the first
-
-        this._ioc._SetParametersToObject(binding, result, parameterValues);
-
-        for (var i = 0; i < binding._eventSource.length; i++) {
-
-            result["_notify" + binding._eventSource[i]] =
-                this.TestDoublePolicy(binding.GetFriendlyName(), "_notify" + binding._eventSource[i]);
-        }
+        	this._ioc._SetParametersToObject(binding, result, parameterValues);
+		
+		} else {
+		
+			result = binding._fakeService;
+		}
 
         return result;
+
     },
     LoadTestDouble: function (nameOrService) {
         /// <summary>Access the test doubles used as dependencies when .Load() is called.</summary>
@@ -86,13 +79,28 @@ FakeJsfIoc.prototype = {
             var binding = this._ioc._bindings[name];
 
             if (binding) {
-                result = new (this._ioc._bindings[name].service);
+				if (binding._fakeService==undefined)
+					binding._fakeService=RedefineFromObject(binding._original,this.InjectDependencies,this,binding._name);
+
+			    if (binding._isObject){
+        			result = new binding._fakeService;
+				
+		        result = this.CloneAsTestDouble(result, name);
+
+        		var parameterValues = Array.prototype.slice.call(arguments, 1); // all arguments after the first
+
+        		this._ioc._SetParametersToObject(binding, result, parameterValues);
+		
+				} else {
+		
+				result = binding._fakeService;
+				}
             } else {
                 throw "FakeJsfIoc could not find service: " + name;
             }
         }
-
-        result = this.CloneAsTestDouble(result, name);
+        else
+        	result = this.CloneAsTestDouble(result, name);
 
         this._preloadedDependencies[name] = result;
 
@@ -146,7 +154,7 @@ FakeJsfIoc.prototype = {
                 continue;
             };
 
-            if (this._ioc._bindings[bindingName].service === service) {
+            if (this._ioc._bindings[bindingName]._original === service) {
                 binding = this._ioc._bindings[bindingName];
                 break;
             }
@@ -170,6 +178,43 @@ FakeJsfIoc.prototype = {
         }
 
         return result;
+    },
+    InjectDependencies: function(scope,name){
+
+    	var binding=this._ioc.GetBinding(name,"InjectDependencies");
+
+       dependencyLoadingLoop:
+        for (var i = 0; i < binding._requires.length; i++) {
+
+            var dependency = binding._requires[i];
+
+            for (var includeIndex = 0; includeIndex < this._includedServices.length; includeIndex++) {
+                if (dependency == this._includedServices[includeIndex]) {
+                    scope[dependency] = this.Load(this._ioc._bindings[dependency]._original);
+                    continue dependencyLoadingLoop;
+                }
+            }
+
+            scope[dependency] = this.LoadTestDouble(dependency);
+        }
+
+        if (binding.boundParameters) {
+            for (var i = 0; i < binding._parameters.length; i++) {
+                var parameter = binding._parameters[i];
+                scope[parameter._name] = binding.boundParameters[parameter._name];
+            }
+        }
+
+
+        for (var i = 0; i < binding._eventSource.length; i++) {
+
+            scope["_notify" + binding._eventSource[i]] =
+                this.TestDoublePolicy(binding.GetFriendlyName(), "_notify" + binding._eventSource[i]);
+        }
+
+        if (binding._singleton) {
+            this._singletons[name] = scope;
+        }
     }
 };
 

@@ -62,7 +62,7 @@ JsfTrace.prototype = {
 
             var singletonBinding = this._ioc.GetBinding(singletonName);
 
-            if (singletonBinding.service == service) {
+            if (singletonBinding._original == service) {
                 decorator(singletonBinding, this._ioc._singletons[singletonName]);
             }
         }
@@ -73,7 +73,7 @@ JsfTrace.prototype = {
 
             var entry = this._decorators[i];
 
-            if (binding.service == entry[0]) {
+            if (binding._original == entry[0]) {
                 entry[1](binding, instance);
             }
         }
