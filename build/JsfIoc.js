@@ -339,12 +339,12 @@ JsfParameter.prototype = {
                     (value.length == 1);
         }
     }
-}
+};
 
 JsfIoc.prototype.Parameter = function (name) {
     ///	<returns type="JsfParameter" />
     return new JsfParameter(name);
-}
+};
 
 
 
@@ -437,4 +437,4 @@ JsfTrace.prototype = {
             console.log(message);
         }
     }
-}
+};

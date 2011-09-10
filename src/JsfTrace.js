@@ -83,4 +83,4 @@ JsfTrace.prototype = {
             console.log(message);
         }
     }
-}
+};
