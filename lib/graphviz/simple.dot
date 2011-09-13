@@ -1,0 +1,9 @@
+digraph {
+    graph [rankdir = "LR"];
+    Baz [ shape="record", label=<Baz <br/><font point-size="12">(instance)</font>> ]
+    Foo [ shape="record", label=<Foo<br/><font color="green" point-size="8">Alt-Tab Alt-Tab Eject Eject Go Go Initialize<br/> Initialize Record Record Rewind Rewind Stop<br/> Stop Tune Tune</font>> ]
+    Bar [ shape="record", label=<Bar> ]
+    FooBar [ shape="record", label=<FooBar<br/><font color="green" point-size="8">init</font><br/><font color="blue" point-size="8">eject</font>> ]; FooBar -> Foo; FooBar -> Bar
+    BarBaz [ shape="record", label=<BarBaz> ]; BarBaz -> Bar; BarBaz -> Baz
+    FooBarbazBarBaz [ shape="record", label=<FooBarbazBarBaz> ]; FooBarbazBarBaz -> Foo; FooBarbazBarBaz -> BarBaz; FooBarbazBarBaz -> Bar; FooBarbazBarBaz -> Baz
+}
