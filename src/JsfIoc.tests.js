@@ -84,6 +84,12 @@ describe("JsfIoc", function () {
                 sut.Load("_someClass", 1289);
                 expect(recordedParameter).toBe(1289);
             });
+
+            it("doesnt change the objects type", function () {
+                var someInstance = sut.Load("_someClass", 1289);
+                expect(typeof (someInstance)).toEqual(typeof (new SomeClass()));
+                expect(someInstance.constructor).toEqual((new SomeClass()).constructor);
+            });
         });
 
         describe("Parameters can have validation", function () {

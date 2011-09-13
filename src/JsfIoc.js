@@ -31,9 +31,13 @@ JsfIoc.prototype = {
 
         var binding = this.GetBinding(name, "Load");
 
-        var result = {};
+        function Temp() {
+        }
 
-        result.__proto__ = binding.service.prototype;
+        Temp.prototype = binding.service.prototype;
+
+        var result = new Temp();
+        result.constructor = binding.service;
 
         if (binding.boundParameters) {
             for (var i = 0; i < binding._parameters.length; i++) {
