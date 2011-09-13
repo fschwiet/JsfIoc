@@ -1,4 +1,4 @@
----
+a---
 title: "JsfIoc"
 ---
 
@@ -119,8 +119,8 @@ The test doubles provided can be modified as part of test setup.
 ## Register a component with configuration parameters
 
 A component can be registered with parameters, to allow those values
-to be injected later.
-The parameter will be attached to the component after its created.
+to be injected on object creation.  Parameters are assigned before the
+constructor is called, allowing them to be used on object creation.
 
 {% highlight javascript %}
 
