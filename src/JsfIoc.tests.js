@@ -33,6 +33,25 @@ describe("JsfIoc", function () {
         expect(result._bar instanceof Bar).toBeTruthy();
     });
 
+    it("can use dependencies within constructor", function () {
+
+        function SupremeService() { };
+        SupremeService.prototype.GetAnswer = function () { return 42; }
+
+        function DependantService() {
+            this._answer = this._supremeService.GetAnswer();
+        }
+
+        var sut = new JsfIoc();
+
+        sut.Register("_supremeService").withConstructor(SupremeService);
+        sut.Register("_dependantService").withConstructor(DependantService).withDependencies("_supremeService");
+
+        var instance = sut.Load("_dependantService");
+
+        expect(instance._answer).toEqual(42);
+    });
+
     describe("services can have parameters to be determined later", function () {
 
         it("The parameters can be specified when a service is Load()d", function () {

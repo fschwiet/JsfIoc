@@ -51,12 +51,12 @@ JsfIoc.prototype = {
             this._SetParametersToObject(binding, result, values)
         }
 
-        binding.service.apply(result, []);
-
         for (var i = 0; i < binding._requires.length; i++) {
             var dependency = binding._requires[i];
             result[dependency] = this.Load(dependency);
         }
+
+        binding.service.apply(result, []);
 
         for (var i = 0; i < binding._eventSource.length; i++) {
 
