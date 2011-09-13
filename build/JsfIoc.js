@@ -206,12 +206,13 @@ JsfIoc.prototype = {
 
         var binding = this.GetBinding(name, "Load");
 
-        result = new binding.service;
-
-        for (var i = 0; i < binding._requires.length; i++) {
-            var dependency = binding._requires[i];
-            result[dependency] = this.Load(dependency);
+        function Temp() {
         }
+
+        Temp.prototype = binding.service.prototype;
+
+        var result = new Temp();
+        result.constructor = binding.service;
 
         if (binding.boundParameters) {
             for (var i = 0; i < binding._parameters.length; i++) {
@@ -224,6 +225,13 @@ JsfIoc.prototype = {
 
             this._SetParametersToObject(binding, result, values)
         }
+
+        for (var i = 0; i < binding._requires.length; i++) {
+            var dependency = binding._requires[i];
+            result[dependency] = this.Load(dependency);
+        }
+
+        binding.service.apply(result, []);
 
         for (var i = 0; i < binding._eventSource.length; i++) {
 
