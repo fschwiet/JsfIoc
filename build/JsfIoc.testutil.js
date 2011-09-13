@@ -205,7 +205,13 @@ FakeJsfIoc.prototype = {
 
         var binding = this.GetBindingByClass(service);
 
-        var result = new binding.service;
+        function Temp() {
+        }
+
+        Temp.prototype = binding.service.prototype;
+
+        var result = new Temp();
+        result.constructor = binding.service;
 
         dependencyLoadingLoop:
         for (var i = 0; i < binding._requires.length; i++) {
@@ -225,6 +231,8 @@ FakeJsfIoc.prototype = {
         var parameterValues = Array.prototype.slice.call(arguments, 1); // all arguments after the first
 
         this._ioc._SetParametersToObject(binding, result, parameterValues);
+
+        binding.service.apply(result, []);
 
         for (var i = 0; i < binding._eventSource.length; i++) {
 
