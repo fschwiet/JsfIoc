@@ -63,6 +63,29 @@ describe("JsfIoc", function () {
             expect(result._fooLevel).toEqual(parameterValue);
         });
 
+        describe("parameters are available when the constructor runs", function () {
+
+            var sut;
+
+            var recordedParameter;
+            function SomeClass() {
+                recordedParameter = this._param;
+            }
+
+            beforeEach(function () {
+
+                recordedParameter = null;
+
+                sut = new JsfIoc();
+                sut.Register("_someClass").withConstructor(SomeClass).withParameters("_param");
+            });
+
+            it("sets the parameter before running the constructor", function () {
+                sut.Load("_someClass", 1289);
+                expect(recordedParameter).toBe(1289);
+            });
+        });
+
         describe("Parameters can have validation", function () {
 
             var sut;
