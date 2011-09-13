@@ -27,10 +27,11 @@ describe("FakeJsfIoc", function () {
 
         sut = new FakeJsfIoc(ioc);
     });
-    
+
     it("configuration parameters can be passed on Load()", function () {
 
         function ClassWithInitializationParameters() {
+            this._aOnConstructor = this._a;
         };
 
         ioc.Register("_some").withConstructor(ClassWithInitializationParameters).withParameters("_a", "_b", "_c");
@@ -40,6 +41,8 @@ describe("FakeJsfIoc", function () {
         expect(result._a).toEqual(1);
         expect(result._b).toEqual(2);
         expect(result._c).toEqual(3);
+
+        expect(result._aOnConstructor).toEqual(1);
     });
 
     describe("Test doubles are provided for each dependency", function () {
