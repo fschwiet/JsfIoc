@@ -122,10 +122,18 @@ JsfIoc.prototype = {
 
             var binding = this._bindings[bindingName];
 
-            var events = binding._eventListener.indexOf(name);
-            var creatingEvents = binding._eventAwakener.indexOf(name);
+            var inArray = function (arr, name) {
 
-            if (events > -1 && creatingEvents > -1) {
+                for (var i = 0; i < arr.length; i++) {
+                    if (arr[i] == name) {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+
+            if (inArray(binding._eventListener, name) && inArray(binding._eventAwakener, name)) {
 
                 this.Load(bindingName);
             }
