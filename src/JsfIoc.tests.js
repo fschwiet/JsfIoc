@@ -321,14 +321,10 @@ describe("JsfIoc", function () {
         function Source() {
         }
 
-        function ListenerCreatedOnEvent() {
-        };
-
+        function ListenerCreatedOnEvent() { };
         ListenerCreatedOnEvent.prototype.OnInitialize = function () { }
 
-        function ListenerNotCreatedOnEvent() {
-        };
-
+        function ListenerNotCreatedOnEvent() { };
         ListenerNotCreatedOnEvent.prototype.OnInitialize = function () { }
 
         var sut;
@@ -340,7 +336,6 @@ describe("JsfIoc", function () {
             sut.Register("_source").withConstructor(Source).sendingEvents("Initialize");
             sut.Register("_listener").withConstructor(ListenerCreatedOnEvent).receivingEvents("Initialize").createdOnEvents("Initialize");
             sut.Register("_notCreated").withConstructor(ListenerNotCreatedOnEvent).receivingEvents("Initialize");
-            sut.Register("_notCreated2").withConstructor(ListenerNotCreatedOnEvent).receivingEvents("Initialize", "InitializeNot").createdOnEvents("InitializeNot"); ;
         });
 
         describe("The event source uses _notifyEVENTNAME() to notify listeners", function () {
@@ -380,6 +375,58 @@ describe("JsfIoc", function () {
                 source._notifyInitialize();
 
                 expect(ListenerNotCreatedOnEvent.prototype.OnInitialize).toHaveBeenCalled();
+            });
+
+            describe("event listeners can be transitive", function () {
+
+                var transitivePresent;
+                function TransitiveListener() { };
+                TransitiveListener.prototype.OnInitialize = function () { }
+
+                beforeEach(function () {
+
+                    transitivePresent = true;
+
+                    sut.Register("_transitive").withConstructor(TransitiveListener)
+                        .receivingEvents("Initialize")
+                        .keepInstanceWhile(function () {
+                            return transitivePresent;
+                        });
+                });
+
+
+                it("_notifyEVENTNAME() does not notify past listeners after they've been removed", function () {
+
+                    var source = sut.Load("_source");
+
+                    var listener = sut.Load("_transitive");
+
+                    spyOn(TransitiveListener.prototype, "OnInitialize");
+
+                    source._notifyInitialize();
+
+                    expect(TransitiveListener.prototype.OnInitialize).toHaveBeenCalled();
+
+                    TransitiveListener.prototype.OnInitialize.reset();
+
+                    transitivePresent = false;
+
+                    source._notifyInitialize();
+
+                    expect(TransitiveListener.prototype.OnInitialize).toHaveBeenCalled();
+
+                    TransitiveListener.prototype.OnInitialize.reset();
+
+                    sut.DoPeriodicCleanup();
+
+                    source._notifyInitialize();
+
+                    expect(TransitiveListener.prototype.OnInitialize).not.toHaveBeenCalled();
+                });
+
+                it("keepInstanceWhile is called with this context set to instance", function () {
+                    expect(false).toBeTruthy();
+                });
             });
 
             it("_notifyEVENTNAME() can pass event parameters", function () {

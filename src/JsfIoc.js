@@ -77,7 +77,10 @@ JsfIoc.prototype = {
                 this._createdListeners[event] = [];
             }
 
-            this._createdListeners[event].push(result);
+            this._createdListeners[event].push({
+                listener: result,
+                test: binding._keepInstanceWhile ? binding._keepInstanceWhile : function () { return true; }
+            });
         }
 
         this._trace.Decorate(binding, result);
@@ -134,13 +137,33 @@ JsfIoc.prototype = {
 
             for (var i = 0; i < listeners.length; i++) {
 
-                var listener = listeners[i];
+                var listener = listeners[i].listener;
                 listener["On" + name].apply(listener, eventParameters || []);
             }
         }
     },
     Trace: function () {
         return this._trace.Trace.apply(this._trace, arguments);
+    },
+    DoPeriodicCleanup: function () {
+
+        for (name in this._createdListeners) {
+
+            if (!this._createdListeners.hasOwnProperty(name))
+                continue;
+
+            var listeners = this._createdListeners[name];
+
+            for (var i = listeners.length - 1; i >= 0; i--) {
+
+                var listener = listeners[i].listener;
+                var test = listeners[i].test;
+
+                if (!test()) {
+                    listeners.splice(i, 1);
+                }
+            }
+        }
     },
     _SetParametersToObject: function (binding, target, values) {
         for (var i = 0; i < binding._parameters.length; i++) {

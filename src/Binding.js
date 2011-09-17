@@ -57,13 +57,13 @@ function Binding(name) {
 Binding.prototype = {
     constructor: Binding,
 
-    withDependencies: function() {
-    	///	<returns type="Binding" />
+    withDependencies: function () {
+        ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_requires");
     },
 
-    withParameters: function() {
-	    ///	<returns type="Binding" />
+    withParameters: function () {
+        ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_parameters");
 
         for (var i = 0; i < this._parameters.length; i++) {
@@ -73,23 +73,27 @@ Binding.prototype = {
         }
     },
 
-    asSingleton: function() {
-	    ///	<returns type="Binding" />
+    asSingleton: function () {
+        ///	<returns type="Binding" />
         this._singleton = true;
     },
 
-    sendingEvents: function() {
-	    ///	<returns type="Binding" />
+    sendingEvents: function () {
+        ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_eventSource");
     },
 
-    receivingEvents: function() {
-	    ///	<returns type="Binding" />
+    receivingEvents: function () {
+        ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_eventListener");
     },
 
-    createdOnEvents: function() {
+    createdOnEvents: function () {
         Binding.AppendArgsToMember(arguments, this, "_eventAwakener");
+    },
+
+    keepInstanceWhile: function (testCallback) {
+        this._keepInstanceWhile = testCallback;
     },
 
     GetFriendlyName: function () {
