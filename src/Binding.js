@@ -49,6 +49,7 @@ function Binding(name) {
     this._singleton = false;
     this._eventSource = [];
     this._eventListener = [];
+    this._eventAwakener = []; // create instance when event is seen
 
     ExtendAsFluent.PrototypeOf(Binding);
 }
@@ -85,6 +86,10 @@ Binding.prototype = {
     receivingEvents: function() {
 	    ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_eventListener");
+    },
+
+    createdOnEvents: function() {
+        Binding.AppendArgsToMember(arguments, this, "_eventAwakener");
     },
 
     GetFriendlyName: function () {

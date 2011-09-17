@@ -333,7 +333,7 @@ describe("JsfIoc", function () {
             sut = new JsfIoc();
 
             sut.Register("_source").withConstructor(Source).sendingEvents("Initialize");
-            sut.Register("_listener").withConstructor(Listener).receivingEvents("Initialize");
+            sut.Register("_listener").withConstructor(Listener).receivingEvents("Initialize").createdOnEvents("Initialize") ;
         });
 
         describe("The event source uses _notifyEVENTNAME() to notify listeners", function () {
