@@ -380,16 +380,19 @@ describe("JsfIoc", function () {
             describe("event listeners can be transitive", function () {
 
                 var transitivePresent;
+                var contextUsedForThis = null;
                 function TransitiveListener() { };
                 TransitiveListener.prototype.OnInitialize = function () { }
 
                 beforeEach(function () {
 
                     transitivePresent = true;
+                    contextUsedForThis = null;
 
                     sut.Register("_transitive").withConstructor(TransitiveListener)
                         .receivingEvents("Initialize")
                         .keepInstanceWhile(function () {
+                            contextUsedForThis = this;
                             return transitivePresent;
                         });
                 });
@@ -425,7 +428,14 @@ describe("JsfIoc", function () {
                 });
 
                 it("keepInstanceWhile is called with this context set to instance", function () {
-                    expect(false).toBeTruthy();
+
+                    var source = sut.Load("_source");
+
+                    var listener = sut.Load("_transitive");
+
+                    sut.DoPeriodicCleanup();
+
+                    expect(contextUsedForThis).toBe(listener);
                 });
             });
 

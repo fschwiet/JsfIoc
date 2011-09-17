@@ -159,7 +159,7 @@ JsfIoc.prototype = {
                 var listener = listeners[i].listener;
                 var test = listeners[i].test;
 
-                if (!test()) {
+                if (!test.apply(listener)) {
                     listeners.splice(i, 1);
                 }
             }
