@@ -104,6 +104,11 @@ describe("Binding", function () {
         expect(binding._eventListener).toEqual([1, 2, 3]);
     })
 
+// not sure where I can implement this given how ioc.Register() chains
+//    it("gives a useful error message if an event is to be created for but not listened to", function () {
+//        expect(false).toBeTruthy();
+//    });
+
     describe("has a friendly name", function () {
 
         it("which is the constructor's name, if available", function () {

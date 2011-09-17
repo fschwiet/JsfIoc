@@ -3,6 +3,7 @@ function JsfIoc() {
     this._bindings = [];
     this._singletons = [];
     this._trace = new JsfTrace(this);
+    this._createdListeners = {};
 }
 
 JsfIoc.prototype = {
@@ -68,6 +69,17 @@ JsfIoc.prototype = {
             })(binding._eventSource[i], this);
         }
 
+        for (var i = 0; i < binding._eventListener.length; i++) {
+
+            var event = binding._eventListener[i];
+
+            if (!this._createdListeners[event]) {
+                this._createdListeners[event] = [];
+            }
+
+            this._createdListeners[event].push(result);
+        }
+
         this._trace.Decorate(binding, result);
 
         if (binding._singleton) {
@@ -106,22 +118,24 @@ JsfIoc.prototype = {
                 continue;
 
             var binding = this._bindings[bindingName];
-            var events = binding._eventListener;
 
-            if (events) {
+            var events = binding._eventListener.indexOf(name);
+            var creatingEvents = binding._eventAwakener.indexOf(name);
 
-                for (var i = 0; i < events.length; i++) {
+            if (events > -1 && creatingEvents > -1) {
 
-                    if (events[i] == name) {
+                this.Load(bindingName);
+            }
+        }
 
-                        if (binding._eventAwakener.indexOf(name) >= 0) {
+        if (this._createdListeners[name]) {
 
-                            var listener = this.Load(bindingName);
+            var listeners = this._createdListeners[name];
 
-                            listener["On" + name].apply(listener, eventParameters || []);
-                        }
-                    }
-                }
+            for (var i = 0; i < listeners.length; i++) {
+
+                var listener = listeners[i];
+                listener["On" + name].apply(listener, eventParameters || []);
             }
         }
     },
