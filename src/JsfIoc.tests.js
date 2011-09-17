@@ -326,6 +326,11 @@ describe("JsfIoc", function () {
 
         Listener.prototype.OnInitialize = function () { }
 
+        function NonListener() {
+        };
+
+        NonListener.prototype.OnInitialize = function () { }
+
         var sut;
 
         beforeEach(function () {
@@ -333,7 +338,9 @@ describe("JsfIoc", function () {
             sut = new JsfIoc();
 
             sut.Register("_source").withConstructor(Source).sendingEvents("Initialize");
-            sut.Register("_listener").withConstructor(Listener).receivingEvents("Initialize").createdOnEvents("Initialize") ;
+            sut.Register("_listener").withConstructor(Listener).receivingEvents("Initialize").createdOnEvents("Initialize");
+            sut.Register("_nonlistener").withConstructor(NonListener).receivingEvents("Initialize");
+            sut.Register("_nonlistener2").withConstructor(NonListener).receivingEvents("Initialize", "InitializeNot").createdOnEvents("InitializeNot"); ;
         });
 
         describe("The event source uses _notifyEVENTNAME() to notify listeners", function () {
@@ -344,20 +351,22 @@ describe("JsfIoc", function () {
                 source = sut.Load("_source");
             });
 
-            it("source has _notifyEVENTNAME() injected as a property", function () {
+            it("property _notifyEVENTNAME() is added to source", function () {
 
                 expect(source._notifyInitialize).toEqual(jasmine.any(Function));
             });
 
-            it("_notifyEVENTNAME() notifies listeners", function () {
+            it("_notifyEVENTNAME() notifies listeners that are created on event", function () {
 
                 var source = sut.Load("_source");
 
                 spyOn(Listener.prototype, "OnInitialize");
+                spyOn(NonListener.prototype, "OnInitialize");
 
                 source._notifyInitialize();
 
                 expect(Listener.prototype.OnInitialize).toHaveBeenCalled();
+                expect(NonListener.prototype.OnInitialize).not.toHaveBeenCalled();
             });
 
             it("_notifyEVENTNAME() can pass event parameters", function () {

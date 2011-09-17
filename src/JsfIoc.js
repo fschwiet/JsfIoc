@@ -105,7 +105,8 @@ JsfIoc.prototype = {
             if (!this._bindings.hasOwnProperty(bindingName))
                 continue;
 
-            var events = this._bindings[bindingName]._eventListener;
+            var binding = this._bindings[bindingName];
+            var events = binding._eventListener;
 
             if (events) {
 
@@ -113,9 +114,12 @@ JsfIoc.prototype = {
 
                     if (events[i] == name) {
 
-                        var listener = this.Load(bindingName);
+                        if (binding._eventAwakener.indexOf(name) >= 0) {
 
-                        listener["On" + name].apply(listener, eventParameters || []);
+                            var listener = this.Load(bindingName);
+
+                            listener["On" + name].apply(listener, eventParameters || []);
+                        }
                     }
                 }
             }
