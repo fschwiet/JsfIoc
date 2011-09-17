@@ -321,15 +321,15 @@ describe("JsfIoc", function () {
         function Source() {
         }
 
-        function Listener() {
+        function ListenerCreatedOnEvent() {
         };
 
-        Listener.prototype.OnInitialize = function () { }
+        ListenerCreatedOnEvent.prototype.OnInitialize = function () { }
 
-        function NonListener() {
+        function ListenerNotCreatedOnEvent() {
         };
 
-        NonListener.prototype.OnInitialize = function () { }
+        ListenerNotCreatedOnEvent.prototype.OnInitialize = function () { }
 
         var sut;
 
@@ -338,9 +338,9 @@ describe("JsfIoc", function () {
             sut = new JsfIoc();
 
             sut.Register("_source").withConstructor(Source).sendingEvents("Initialize");
-            sut.Register("_listener").withConstructor(Listener).receivingEvents("Initialize").createdOnEvents("Initialize");
-            sut.Register("_nonlistener").withConstructor(NonListener).receivingEvents("Initialize");
-            sut.Register("_nonlistener2").withConstructor(NonListener).receivingEvents("Initialize", "InitializeNot").createdOnEvents("InitializeNot"); ;
+            sut.Register("_listener").withConstructor(ListenerCreatedOnEvent).receivingEvents("Initialize").createdOnEvents("Initialize");
+            sut.Register("_notCreated").withConstructor(ListenerNotCreatedOnEvent).receivingEvents("Initialize");
+            sut.Register("_notCreated2").withConstructor(ListenerNotCreatedOnEvent).receivingEvents("Initialize", "InitializeNot").createdOnEvents("InitializeNot"); ;
         });
 
         describe("The event source uses _notifyEVENTNAME() to notify listeners", function () {
@@ -356,41 +356,54 @@ describe("JsfIoc", function () {
                 expect(source._notifyInitialize).toEqual(jasmine.any(Function));
             });
 
-            it("_notifyEVENTNAME() notifies listeners that are created on event", function () {
+            it("_notifyEVENTNAME() notifies listeners configured to be created on event", function () {
 
                 var source = sut.Load("_source");
 
-                spyOn(Listener.prototype, "OnInitialize");
-                spyOn(NonListener.prototype, "OnInitialize");
+                spyOn(ListenerCreatedOnEvent.prototype, "OnInitialize");
+                spyOn(ListenerNotCreatedOnEvent.prototype, "OnInitialize");
 
                 source._notifyInitialize();
 
-                expect(Listener.prototype.OnInitialize).toHaveBeenCalled();
-                expect(NonListener.prototype.OnInitialize).not.toHaveBeenCalled();
+                expect(ListenerCreatedOnEvent.prototype.OnInitialize).toHaveBeenCalled();
+                expect(ListenerNotCreatedOnEvent.prototype.OnInitialize).not.toHaveBeenCalled();
+            });
+
+            it("_notifyEVENTNAME() notifies listeners already created", function () {
+
+                var source = sut.Load("_source");
+
+                var listener = sut.Load("_notCreated");
+
+                spyOn(ListenerNotCreatedOnEvent.prototype, "OnInitialize");
+
+                source._notifyInitialize();
+
+                expect(ListenerNotCreatedOnEvent.prototype.OnInitialize).toHaveBeenCalled();
             });
 
             it("_notifyEVENTNAME() can pass event parameters", function () {
 
                 var source = sut.Load("_source");
 
-                spyOn(Listener.prototype, "OnInitialize");
+                spyOn(ListenerCreatedOnEvent.prototype, "OnInitialize");
 
                 source._notifyInitialize(1, 2, 3);
 
-                expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
+                expect(ListenerCreatedOnEvent.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
             });
 
             it("bugfix: _notifyEVENTNAME() should create unique functional scope per _notify over-ride", function () {
 
                 sut.Register("_multisource").withConstructor(Source).sendingEvents("AnotherEvent", "Initialize", "HelloWorld");
 
-                spyOn(Listener.prototype, "OnInitialize");
+                spyOn(ListenerCreatedOnEvent.prototype, "OnInitialize");
 
                 var source = sut.Load("_multisource");
 
                 source._notifyInitialize(1, 2, 3);
 
-                expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
+                expect(ListenerCreatedOnEvent.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
             });
         });
 
@@ -398,19 +411,19 @@ describe("JsfIoc", function () {
 
             it("with parameters", function () {
 
-                spyOn(Listener.prototype, "OnInitialize");
+                spyOn(ListenerCreatedOnEvent.prototype, "OnInitialize");
 
                 sut.NotifyEvent("Initialize", [1, 2, 3]);
 
-                expect(Listener.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
+                expect(ListenerCreatedOnEvent.prototype.OnInitialize).toHaveBeenCalledWith(1, 2, 3);
             });
 
             it("without parameters", function () {
-                spyOn(Listener.prototype, "OnInitialize");
+                spyOn(ListenerCreatedOnEvent.prototype, "OnInitialize");
 
                 sut.NotifyEvent("Initialize");
 
-                expect(Listener.prototype.OnInitialize).toHaveBeenCalled();
+                expect(ListenerCreatedOnEvent.prototype.OnInitialize).toHaveBeenCalled();
             });
         });
     });
