@@ -77,6 +77,7 @@ function Binding(name) {
     this._singleton = false;
     this._eventSource = [];
     this._eventListener = [];
+    this._eventAwakener = []; // create instance when event is seen
 
     ExtendAsFluent.PrototypeOf(Binding);
 }
@@ -84,13 +85,13 @@ function Binding(name) {
 Binding.prototype = {
     constructor: Binding,
 
-    withDependencies: function() {
-    	///	<returns type="Binding" />
+    withDependencies: function () {
+        ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_requires");
     },
 
-    withParameters: function() {
-	    ///	<returns type="Binding" />
+    withParameters: function () {
+        ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_parameters");
 
         for (var i = 0; i < this._parameters.length; i++) {
@@ -100,19 +101,27 @@ Binding.prototype = {
         }
     },
 
-    asSingleton: function() {
-	    ///	<returns type="Binding" />
+    asSingleton: function () {
+        ///	<returns type="Binding" />
         this._singleton = true;
     },
 
-    sendingEvents: function() {
-	    ///	<returns type="Binding" />
+    sendingEvents: function () {
+        ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_eventSource");
     },
 
-    receivingEvents: function() {
-	    ///	<returns type="Binding" />
+    receivingEvents: function () {
+        ///	<returns type="Binding" />
         Binding.AppendArgsToMember(arguments, this, "_eventListener");
+    },
+
+    createdOnEvents: function () {
+        Binding.AppendArgsToMember(arguments, this, "_eventAwakener");
+    },
+
+    keepInstanceWhile: function (testCallback) {
+        this._keepInstanceWhile = testCallback;
     },
 
     GetFriendlyName: function () {
@@ -178,6 +187,7 @@ function JsfIoc() {
     this._bindings = [];
     this._singletons = [];
     this._trace = new JsfTrace(this);
+    this._createdListeners = {};
 }
 
 JsfIoc.prototype = {
@@ -243,6 +253,20 @@ JsfIoc.prototype = {
             })(binding._eventSource[i], this);
         }
 
+        for (var i = 0; i < binding._eventListener.length; i++) {
+
+            var event = binding._eventListener[i];
+
+            if (!this._createdListeners[event]) {
+                this._createdListeners[event] = [];
+            }
+
+            this._createdListeners[event].push({
+                listener: result,
+                test: binding._keepInstanceWhile ? binding._keepInstanceWhile : function () { return true; }
+            });
+        }
+
         this._trace.Decorate(binding, result);
 
         if (binding._singleton) {
@@ -280,24 +304,50 @@ JsfIoc.prototype = {
             if (!this._bindings.hasOwnProperty(bindingName))
                 continue;
 
-            var events = this._bindings[bindingName]._eventListener;
+            var binding = this._bindings[bindingName];
 
-            if (events) {
+            var events = binding._eventListener.indexOf(name);
+            var creatingEvents = binding._eventAwakener.indexOf(name);
 
-                for (var i = 0; i < events.length; i++) {
+            if (events > -1 && creatingEvents > -1) {
 
-                    if (events[i] == name) {
+                this.Load(bindingName);
+            }
+        }
 
-                        var listener = this.Load(bindingName);
+        if (this._createdListeners[name]) {
 
-                        listener["On" + name].apply(listener, eventParameters || []);
-                    }
-                }
+            var listeners = this._createdListeners[name];
+
+            for (var i = 0; i < listeners.length; i++) {
+
+                var listener = listeners[i].listener;
+                listener["On" + name].apply(listener, eventParameters || []);
             }
         }
     },
     Trace: function () {
         return this._trace.Trace.apply(this._trace, arguments);
+    },
+    DoPeriodicCleanup: function () {
+
+        for (name in this._createdListeners) {
+
+            if (!this._createdListeners.hasOwnProperty(name))
+                continue;
+
+            var listeners = this._createdListeners[name];
+
+            for (var i = listeners.length - 1; i >= 0; i--) {
+
+                var listener = listeners[i].listener;
+                var test = listeners[i].test;
+
+                if (!test.apply(listener)) {
+                    listeners.splice(i, 1);
+                }
+            }
+        }
     },
     _SetParametersToObject: function (binding, target, values) {
         for (var i = 0; i < binding._parameters.length; i++) {
