@@ -29,7 +29,7 @@ FakeJsfIoc.prototype = {
         ///     service constructor
         /// </param>
 
-        var binding = this.GetBindingByClass(service);
+        var binding = this.GetBinding(service);
 
         function Temp() {
         }
@@ -81,7 +81,7 @@ FakeJsfIoc.prototype = {
 
             var service = nameOrService;
 
-            name = this.GetBindingByClass(service)._name;
+            name = this.GetBinding(service)._name;
         }
 
         if (this._preloadedDependencies[name]) {
@@ -106,6 +106,16 @@ FakeJsfIoc.prototype = {
 
         return result;
     },
+    Preload: function (service) {
+
+        var serviceName = this.GetBinding(service)._name;
+
+        if (!this._preloadedDependencies[serviceName]) {
+            this._preloadedDependencies[serviceName] = this.Load(serviceName);
+        }
+
+        return this._preloadedDependencies[serviceName];
+    },
     IncludeReal: function (includedServices) {
         /// <summary>List services that should be loaded as dependencies without using test doubles.</summary>
         /// <param name="includedServices">
@@ -119,11 +129,13 @@ FakeJsfIoc.prototype = {
             includedServices = [includedServices];
         }
 
+        for (var i = 0; i < includedServices.length; i++) {
+            this.Preload(includedServices[i]);
+        }
+
         return {
             Load: function () {
-                that._includedServices = includedServices;
                 var result = that.Load.apply(that, arguments);
-                that._includedServices = [];
                 return result;
             }
         }
@@ -144,9 +156,13 @@ FakeJsfIoc.prototype = {
 
         this._preloadedDependencies[name] = instance;
     },
-    GetBindingByClass: function (service) {
+    GetBinding: function (service) {
 
         var binding = null;
+
+        if (typeof (service) == "string") {
+            return this._ioc._bindings[service];
+        }
 
         for (var bindingName in this._ioc._bindings) {
 

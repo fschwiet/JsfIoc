@@ -28,6 +28,34 @@ describe("FakeJsfIoc", function () {
         sut = new FakeJsfIoc(ioc);
     });
 
+    it("services can be loaded by registered name or constructor", function () {
+
+        var foo1 = sut.Load(Foo);
+        var foo2 = sut.Load("_foo");
+
+        expect(foo1.constructor).toEqual(Foo);
+        expect(foo2.constructor).toEqual(Foo);
+        expect(foo1).not.toBe(foo2);
+    });
+
+    it("services can be preloaded, then are effectively singletons", function () {
+        var foo1 = sut.Preload(Foo);
+        var foo2 = sut.Preload("_foo");
+        var bar1 = sut.Preload(Bar);
+        var bar2 = sut.Load("_bar");
+        var bar3 = sut.Load("_bar");
+
+        // preloaded services are singletons
+        expect(foo1).toBe(foo2);
+
+        // loaded services are not- a new one is returned per call to Load()
+        expect(bar1).not.toBe(bar2);
+        expect(bar2).not.toBe(bar1);
+
+        // the preloaded service is available to loaded services
+        expect(bar1._foo).toBe(foo1);
+    });
+
     it("configuration parameters can be passed on Load()", function () {
 
         function ClassWithInitializationParameters() {

@@ -46,6 +46,15 @@ describe("JsfTrace", function () {
             this._foo.Run();
         };
 
+        function expectStringIsTraceOfFunctionCompletion(actual, expectedClass, expectedWhitespace) {
+            expectedWhitespace = expectedWhitespace || 0;
+            var prefix = "^";
+            for (var i = 0; i < expectedWhitespace; i++) {
+                prefix = prefix + " ";
+            }
+            expect(actual).toMatch(prefix + "< " + expectedClass + "\\.Run \\(\\dms\\)");
+        }
+
         describe("can trace service calls", function () {
 
             it("when the trace is requested before service registration", function () {
@@ -58,7 +67,8 @@ describe("JsfTrace", function () {
 
                 expect(sut._trace.Log).toHaveBeenCalled();
                 expect(sut._trace.Log.argsForCall[0]).toEqual(["> Foo.Run()"]);
-                expect(sut._trace.Log.argsForCall[1]).toEqual(["< Foo.Run (0ms)"]);
+
+                expectStringIsTraceOfFunctionCompletion(sut._trace.Log.argsForCall[1], "Foo");
             });
 
             it("when the trace is requested before service instantiation", function () {
@@ -71,7 +81,7 @@ describe("JsfTrace", function () {
 
                 expect(sut._trace.Log).toHaveBeenCalled();
                 expect(sut._trace.Log.argsForCall[0]).toEqual(["> Foo.Run()"]);
-                expect(sut._trace.Log.argsForCall[1]).toEqual(["< Foo.Run (0ms)"]);
+                expectStringIsTraceOfFunctionCompletion(sut._trace.Log.argsForCall[1], "Foo");
             });
 
             it("when the trace is requested after singleton instantiation", function () {
@@ -86,7 +96,7 @@ describe("JsfTrace", function () {
 
                 expect(sut._trace.Log).toHaveBeenCalled();
                 expect(sut._trace.Log.argsForCall[0]).toEqual(["> Foo.Run()"]);
-                expect(sut._trace.Log.argsForCall[1]).toEqual(["< Foo.Run (0ms)"]);
+                expectStringIsTraceOfFunctionCompletion(sut._trace.Log.argsForCall[1], "Foo");
             });
         });
 
@@ -112,8 +122,8 @@ describe("JsfTrace", function () {
             expect(sut._trace.Log).toHaveBeenCalled();
             expect(sut._trace.Log.argsForCall[0]).toEqual(["> Bar.Run()"]);
             expect(sut._trace.Log.argsForCall[1]).toEqual(["  > Foo.Run()"]);
-            expect(sut._trace.Log.argsForCall[2]).toEqual(["  < Foo.Run (0ms)"]);
-            expect(sut._trace.Log.argsForCall[3]).toEqual(["< Bar.Run (0ms)"]);
+            expectStringIsTraceOfFunctionCompletion(sut._trace.Log.argsForCall[2], "Foo", 2);
+            expectStringIsTraceOfFunctionCompletion(sut._trace.Log.argsForCall[3], "Bar");
         });
 
         it("calls that throw an exception are traced", function () {
